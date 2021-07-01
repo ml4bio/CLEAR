@@ -399,7 +399,9 @@ sce &lt;- FindNeighbors(sce, dims = 1:128, reduction = &#39;scarlet&#39;)
 sce &lt;- FindClusters(sce, resolution = 1.2)
 sce &lt;- RunUMAP(sce, dims = 1:128, reduction = &#39;scarlet&#39;)
 
-
+#find markers
+all.marker &lt;- FindAllMarkers(sce, only.pos = TRUE, )
+write.csv(all.marker, &#39;marker_genes.csv&#39;, row.names = F)
 
 #Simplify
 new_cluster.ident &lt;- c(&#39;CD14 Monocyte&#39;,&#39;B cell&#39;,&#39;CD4 T cell&#39;,&#39;CD4 T cell&#39;,&#39;NK&#39;,&#39;CD8 T cell&#39;,
@@ -538,9 +540,9 @@ FeaturePlot(mono, &#39;IL6&#39;, pt.size = 0.1)</code></pre>
 <p>We use wilcox method to perform DEG analysis.</p>
 <pre class="r"><code>#CD14+ monocyte DEG
 mon_health &lt;- subset(sce, idents = &#39;CD14 Monocyte&#39;)
-mon_deg &lt;- FindMarkers(mon_health, ident.1 = &#39;NonVent&#39;, ident.2 = &#39;Healthy&#39;, 
+mon_deg &lt;- FindMarkers(mon_health, ident.1 = &#39;NonVent&#39;, ident.2 = &#39;Healthy&#39;, logfc.threshold = 0.1,  
                        group.by = &#39;Ventilated&#39;, only.pos = F, test.use = &quot;wilcox&quot;)
-mon_deg_vent &lt;- FindMarkers(sce, ident.1 = &#39;Vent&#39;, ident.2 = &#39;Healthy&#39;, group.by = &#39;Ventilated&#39;, 
+mon_deg_vent &lt;- FindMarkers(sce, ident.1 = &#39;Vent&#39;, ident.2 = &#39;Healthy&#39;, group.by = &#39;Ventilated&#39;, logfc.threshold = 0.1
                             subset.ident = &#39;CD14 Monocyte&#39;,only.pos = F, test.use = &#39;wilcox&#39;)
 
 mon_deg &lt;- data.frame(NonVent = mon_deg$avg_log2FC, row.names = rownames(mon_deg))
@@ -585,7 +587,7 @@ pheatmap(total_cd14,
 <pre class="r"><code># ISG score
 isg.list &lt;- read.csv(&#39;~/R Scripts/rna_clustering/covid/isg.csv&#39;)
 
-sce &lt;- AddModuleScore(sce, features = list(as.character(isg.list$ISG.Sig)), name = &#39;ISG&#39;)
+sce &lt;- AddModuleScore(sce, features = list(as.character(isg.list$ISG.Sig)), name = &#39;ISG1&#39;)
 sce_deg$ISG1
 
 sce_cd14 &lt;- subset(sce, idents = &#39;CD14 Monocyte&#39;)
@@ -694,15 +696,13 @@ geneList&lt;-mon_deg_vent$Vent
 names(geneList)=mon_deg_vent$Gene2
 geneList &lt;- sort(geneList,decreasing = T)
 
-kegg &lt;- read.gmt(&#39;~/R Scripts/rna_clustering/covid/c5.go.bp.v7.4.symbols.gmt&#39;)
-cd14_m_h_kegg &lt;- GSEA(geneList = geneList, TERM2GENE = kegg)
-cd14_m_h_kegg@result
+go &lt;- read.gmt(&#39;~/R Scripts/rna_clustering/covid/c5.go.bp.v7.4.symbols.gmt&#39;)
+cd14_m_h_go &lt;- GSEA(geneList = geneList, TERM2GENE = go)
+cd14_m_h_go@result
 
-GSEA_KEGG &lt;- gseKEGG(geneList, pvalueCutoff = 0.05)
-
-cd14_m_h_kegg@result[order(cd14_m_h_kegg@result$enrichmentScore,decreasing = T),]
-write.csv(cd14_m_h_kegg@result,&#39;go_mono14_sever.csv&#39;)
-gseaplot2(cd14_m_h_kegg,c(2,19,27,23,24,3,4,5,6,1),pvalue_table = F, ES_geom = &#39;line&#39;,
+cd14_m_h_go@result[order(cd14_m_h_go@result$enrichmentScore,decreasing = T),]
+write.csv(cd14_m_h_go@result,&#39;go_mono14_sever.csv&#39;)
+gseaplot2(cd14_m_h_go,c(2,19,27,23,24,3,4,5,6,1),pvalue_table = F, ES_geom = &#39;line&#39;,
           rel_heights = c(1.4, 0.5, 1),base_size = 12, title = &#39;Upregulated Pathway&#39;)</code></pre>
 </div>
 

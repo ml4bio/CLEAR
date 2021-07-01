@@ -49,7 +49,9 @@ sce <- FindNeighbors(sce, dims = 1:128, reduction = 'scarlet')
 sce <- FindClusters(sce, resolution = 1.2)
 sce <- RunUMAP(sce, dims = 1:128, reduction = 'scarlet')
 
-
+#find markers
+all.marker <- FindAllMarkers(sce, only.pos = TRUE, )
+write.csv(all.marker, 'marker_genes.csv', row.names = F)
 
 #Simplify
 new_cluster.ident <- c('CD14 Monocyte','B cell','CD4 T cell','CD4 T cell','NK','CD8 T cell',
@@ -200,9 +202,9 @@ We use wilcox method to perform DEG analysis.
 ```{r fig5f, eval=FALSE}
 #CD14+ monocyte DEG
 mon_health <- subset(sce, idents = 'CD14 Monocyte')
-mon_deg <- FindMarkers(mon_health, ident.1 = 'NonVent', ident.2 = 'Healthy', 
+mon_deg <- FindMarkers(mon_health, ident.1 = 'NonVent', ident.2 = 'Healthy', logfc.threshold = 0.1,  
                        group.by = 'Ventilated', only.pos = F, test.use = "wilcox")
-mon_deg_vent <- FindMarkers(sce, ident.1 = 'Vent', ident.2 = 'Healthy', group.by = 'Ventilated', 
+mon_deg_vent <- FindMarkers(sce, ident.1 = 'Vent', ident.2 = 'Healthy', group.by = 'Ventilated', logfc.threshold = 0.1
                             subset.ident = 'CD14 Monocyte',only.pos = F, test.use = 'wilcox')
 
 mon_deg <- data.frame(NonVent = mon_deg$avg_log2FC, row.names = rownames(mon_deg))
@@ -249,7 +251,7 @@ pheatmap(total_cd14,
 # ISG score
 isg.list <- read.csv('~/R Scripts/rna_clustering/covid/isg.csv')
 
-sce <- AddModuleScore(sce, features = list(as.character(isg.list$ISG.Sig)), name = 'ISG')
+sce <- AddModuleScore(sce, features = list(as.character(isg.list$ISG.Sig)), name = 'ISG1')
 sce_deg$ISG1
 
 sce_cd14 <- subset(sce, idents = 'CD14 Monocyte')
@@ -361,15 +363,13 @@ geneList<-mon_deg_vent$Vent
 names(geneList)=mon_deg_vent$Gene2
 geneList <- sort(geneList,decreasing = T)
 
-kegg <- read.gmt('~/R Scripts/rna_clustering/covid/c5.go.bp.v7.4.symbols.gmt')
-cd14_m_h_kegg <- GSEA(geneList = geneList, TERM2GENE = kegg)
-cd14_m_h_kegg@result
+go <- read.gmt('~/R Scripts/rna_clustering/covid/c5.go.bp.v7.4.symbols.gmt')
+cd14_m_h_go <- GSEA(geneList = geneList, TERM2GENE = go)
+cd14_m_h_go@result
 
-GSEA_KEGG <- gseKEGG(geneList, pvalueCutoff = 0.05)
-
-cd14_m_h_kegg@result[order(cd14_m_h_kegg@result$enrichmentScore,decreasing = T),]
-write.csv(cd14_m_h_kegg@result,'go_mono14_sever.csv')
-gseaplot2(cd14_m_h_kegg,c(2,19,27,23,24,3,4,5,6,1),pvalue_table = F, ES_geom = 'line',
+cd14_m_h_go@result[order(cd14_m_h_go@result$enrichmentScore,decreasing = T),]
+write.csv(cd14_m_h_go@result,'go_mono14_sever.csv')
+gseaplot2(cd14_m_h_go,c(2,19,27,23,24,3,4,5,6,1),pvalue_table = F, ES_geom = 'line',
           rel_heights = c(1.4, 0.5, 1),base_size = 12, title = 'Upregulated Pathway')
 ```
 
