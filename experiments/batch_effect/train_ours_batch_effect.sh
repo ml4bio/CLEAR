@@ -1,0 +1,38 @@
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1/dataset1_sm_uc3.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1/sample_sm_uc3.csv" --exp-dir exp_dataset1 --gpu 0 --log --highlyGene --epochs 500
+
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset2/filtered_total_batch1_seqwell_batch2_10x.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset2/filtered_total_sample_ext_organ_celltype_batch.csv" --exp-dir exp_dataset2 --gpu 0 --log --highlyGene --epochs 500
+
+
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset4/myData_pancreatic_5batches.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset4/mySample_pancreatic_5batches.csv" --exp-dir exp_dataset4 --gpu 0 --log --highlyGene --epochs 500
+
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset5_counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset5_labels.csv" --exp-dir exp_dataset5 --gpu 0 --log --highlyGene --epochs 500
+
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset6_counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset6_labels.csv" --exp-dir exp_dataset6 --gpu 0 --log --highlyGene --epochs 500
+
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset7_counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset7_labels.csv" --exp-dir exp_dataset7 --gpu 0 --log --highlyGene --epochs 500
+
+#python main_pcl.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset10_counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset10_labels.csv" --exp-dir exp_dataset10 --gpu 0 --log --highlyGene --epochs 500
+
+
+# dataset 1
+save_dir="./result_batch_effect/"
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1/dataset1_sm_uc3.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1/sample_sm_uc3.csv" --exp-dir exp_tmp --gpu 0 --epochs 500 --metric_dir ${save_dir} --save-freq 1
+
+# dataset 6
+python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset6_counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/all/dataset6_labels.csv" --exp-dir exp_tmp --gpu 0 --epochs 500 --metric_dir ${save_dir} --save-freq 1
+
+
+# dataset3
+#save_dir="./result_batch_effect/"
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul1/counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul1/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul1-HVG/counts_HVG.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul1-HVG/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul2/counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul2/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul2-HVG/counts_HVG.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul2-HVG/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul3/counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul3/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul3-HVG/counts_HVG.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul3-HVG/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul4/counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul4/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul4-HVG/counts_HVG.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul4-HVG/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul5/counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul5/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul5-HVG/counts_HVG.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul5-HVG/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul6/counts.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul6/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
+#python method/Scarlet/main_pcl_cjy.py --lr 1 --batch-size 512 --pcl-r 1024 --cos --count_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul6-HVG/counts_HVG.csv" --label_data "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset3/simul6-HVG/cellinfo.csv" --exp-dir exp_tmp --gpu 0 --highlyGene --epochs 500 --metric_dir ${save_dir} --save-freq 1
