@@ -53,7 +53,7 @@ python /CLEAR/main_pcl_cjy.py --lr 10 --batch-size 512 --pcl-r 1024 --cos --coun
 
 For abula-muris-senis-facs-processed-official-annotations-Diaphragm
 ```
-python method/Scarlet/main_pcl_cjy.py --lr 5e-1 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_counts.csv" --label_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_labels.csv" --exp-dir exp_tmp --gpu 0 --log --highlyGene --epochs 500 --save-freq 1
+python /CLEAR/main_pcl_cjy.py --lr 5e-1 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_counts.csv" --label_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_labels.csv" --exp-dir exp_tmp --gpu 0 --log --highlyGene --epochs 500 --save-freq 1
 ```
 
 ## Citation
