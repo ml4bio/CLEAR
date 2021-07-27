@@ -9,7 +9,8 @@ CLEAR (self-supervised **C**ontrastive **LEA**rning framework for sc**R**NA-seq)
 The package can be installed based by `git `. Test environment is CentOS 7 operation system, Nvidia TITAN X GPU.
 
 ```bash
-git
+git https://github.com/ml4bio/CLEAR
+cd ~/CLEAR/CLEAR
 ```
 
 ## Quick Running
