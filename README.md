@@ -24,7 +24,5 @@ cd ~/CLEAR/CLEAR
 
 ## Quick Running
 
-##
-
 
 ## Citation
