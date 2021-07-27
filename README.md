@@ -8,6 +8,15 @@ CLEAR (self-supervised **C**ontrastive **LEA**rning framework for sc**R**NA-seq)
 
 The package can be installed based by `git `. Test environment is CentOS 7 operation system, Nvidia TITAN X GPU.
 
+### (Recommanded) Use virtual environment with Anaconda (Python = 3.7)
+
+```bash
+conda create -n CLEAR python = 3.7
+conda activate CLEAR
+```
+
+### Git from github
+
 ```bash
 git https://github.com/ml4bio/CLEAR
 cd ~/CLEAR/CLEAR
