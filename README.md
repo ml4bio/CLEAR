@@ -12,5 +12,5 @@ The package can be installed based by `git `. Test environment is CentOS 7 opera
 git
 ```
 
-## Quick running
+## Quick Running
 
