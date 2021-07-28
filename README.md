@@ -60,3 +60,6 @@ python /CLEAR/main_pcl_cjy.py --lr 5e-1 --batch-size 512 --pcl-r 1024 --cos --co
 ```
 
 ## Citation
+
+Han, W., Cheng, Y., Chen, J., Zhong, H., Hu, Z., Chen, S., . . . Li, Y. (2021). Self-supervised contrastive learning for integrative single cell RNA-seq data analysis. bioRxiv, 2021.2007.2026.453730. doi:10.1101/2021.07.26.453730
+
