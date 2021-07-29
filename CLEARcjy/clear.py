@@ -36,7 +36,6 @@ from anndata import AnnData
 import scanpy as sc
 import pandas as pd
 
-
 from .preprocess_csv import preprocess_dataset
 
 model_names = sorted(name for name in models.__dict__
@@ -44,14 +43,7 @@ model_names = sorted(name for name in models.__dict__
     and callable(models.__dict__[name]))
 
 parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
-parser.add_argument('--count_data', type=str, default= "",
-                    help='path to counts')
 
-parser.add_argument('--label_data', type=str, default= "",
-                    help='path to labels')
-
-parser.add_argument('--label_colname', type=str, default= "x",
-                    help='column name of labels in label.csv')
 
 parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
@@ -121,21 +113,11 @@ parser.add_argument('--warmup-epoch', default=5, type=int,
 parser.add_argument('--exp-dir', default='experiment_pcl', type=str,
                     help='experiment directory')
 
-parser.add_argument('--CPM', action="store_true",
-                    help='do count per million operation for raw counts')
-parser.add_argument("--log", action="store_true",
-                    help='Whether do log operation before preprocessing')
-parser.add_argument("--highlyGene", action="store_true",
-                    help="Whether select highly variable gene")
-parser.add_argument("--aug_prob", type=float, default=0.5,
-                    help="The prob of doing augmentation")
-parser.add_argument("--drop_prob", type=float, default=0.0,
-                    help="simulate dropout events")
+
 
 # CJY
 parser.add_argument('--metric_dir', default='./result', type=str,
                     help='experiment directory')
-
 
 
 def main():
@@ -154,15 +136,11 @@ def main():
     if args.gpu is not None:
         warnings.warn('You have chosen a specific GPU. This will completely '
                       'disable data parallelism.')
-
     
     args.num_cluster = args.num_cluster.split(',')
-    
 
     if not os.path.exists(args.exp_dir):
         os.mkdir(args.exp_dir)
-    
-
 
     main_worker(args.gpu, args)
 
@@ -267,8 +245,6 @@ def main_worker(gpu, args):
 
     train_sampler = None
     eval_sampler = None
-    
-
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
@@ -469,9 +445,7 @@ def run_sklearn_kmeans(features, labels, num_cluster):
     print(f"The sklearn NMI is {best_nmi} \n")
     print(f"The silhouette coefficient is {silhou}\n")
     
-    
     return [best_ari, best_nmi, silhou, kmeans.labels_]
-
 
 
 def run_scanpy_leiden(features, labels):
@@ -631,15 +605,7 @@ def accuracy(output, target, topk=(1,)):
         return res
 
 
-def dropout_events(adata, drop_prob=0.0):
-    adata = adata.copy()
-    nnz = adata.X.nonzero()
-    nnz_size = len(nnz[0])
 
-    drop = np.random.choice(nnz_size, int(nnz_size*drop_prob))
-    adata[nnz[0][drop], nnz[1][drop]] = 0
-
-    return adata
 
 
 

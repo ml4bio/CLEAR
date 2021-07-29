@@ -1,24 +1,68 @@
+import numpy as np
+import pandas as pd
 import scanpy as sc
+import os
+
+parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
+
+# input & ouput
+parser.add_argument('--count_csv_path', type=str, default= "",
+                    help='path to counts')
+parser.add_argument('--label_csv_path', type=str, default= "",
+                    help='path to labels')
+parser.add_argument('--save_csv_dir', type=str, default= "",
+                    help='dir to savings')
+parser.add_argument('--label_colname', type=str, default="x",
+                    help='column name of labels in label.csv')
+
+# preprocessing
+parser.add_argument('--CPM', action="store_true",
+                    help='do count per million operation for raw counts')
+parser.add_argument("--log", action="store_true",
+                    help='Whether do log operation before preprocessing')
+parser.add_argument("--highlyGene", action="store_true",
+                    help="Whether select highly variable gene")
+parser.add_argument("--aug_prob", type=float, default=0.5,
+                    help="The prob of doing augmentation")
+parser.add_argument("--drop_prob", type=float, default=0.0,
+                    help="simulate dropout events")
 
 
-def preprocess_csv(traindir: str = "",
-                       labeldir: str = "",
-                       colname: str = "x",
-                       select_highly_variable_gene: bool = False,
-                       do_CPM: bool = True,
-                       do_log: bool = True,
-                       drop_prob: float = 0.0):
+def dropout_events(adata, drop_prob=0.0):
+    adata = adata.copy()
+    nnz = adata.X.nonzero()
+    nnz_size = len(nnz[0])
+
+    drop = np.random.choice(nnz_size, int(nnz_size*drop_prob))
+    adata[nnz[0][drop], nnz[1][drop]] = 0
+
+    return adata
+
+
+def preprocess_csv_to_h5ad(count_path: str = "",
+                           label_path: str = "",
+                           save_dir: str = "",
+                           label_colname: str = "x",
+                           select_highly_variable_gene: bool = False,
+                           do_CPM: bool = True,
+                           do_log: bool = True,
+                           drop_prob: float = 0.0):
     # read the count matrix from the path
-    count_frame = pd.read_csv(traindir, index_col=0)
+    count_frame = pd.read_csv(count_path, index_col=0)
     print("counts shape:{}".format(count_frame.shape))
-    meta_frame = pd.read_csv(labeldir, index_col=0, header=0)
-    print("labels shape:{}".format(meta_frame.shape))
-    meta_frame.rename(columns={colname: 'x'}, inplace=True)
-    # meta_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
-    # meta_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
-    # meta_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
-    # meta_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
-    adata = sc.AnnData(X=count_frame, obs=meta_frame)
+
+    if label_path != None:
+        label_frame = pd.read_csv(label_path, index_col=0, header=0)
+        print("labels shape:{}".format(label_frame.shape))
+        label_frame.rename(columns={label_colname: 'x'}, inplace=True)
+
+        # label_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
+        # label_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
+        # label_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
+        # label_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+        adata = sc.AnnData(X=count_frame, obs=label_frame)
+    else:
+        adata = sc.AnnData(X=count_frame)
 
     # adata = sc.read()
 
@@ -73,4 +117,29 @@ def preprocess_csv(traindir: str = "",
     # adata_min = np.min(adata.X)
     # adata.X = (adata.X - adata_min)/(adata_max - adata_min)
 
+    if save_dir is not None:
+        _, counts_file_name = os.path.split(count_path)
+        if label_path != None:
+            save_file_name = counts_file_name.replace(".csv", ".h5ad")
+        else:
+            save_file_name = counts_file_name.replace(".csv", "_with_labels.h5ad")
+
+        save_path = os.path.join(save_dir, save_file_name)
+
+        adata.write(save_path)
+        print("successfully convert and preprocess {} to {}!".format(counts_file_name, save_file_name))
+
     return adata
+
+if __name__=="__main__":
+    args = parser.parse_args()
+
+    count_path = args.count_data
+    label_path = args.label_data
+    save_dir = args.save_dir
+    label_colname = args.label_colname
+
+    processed_adata = preprocess_csv_to_h5ad(
+        count_path, label_path, save_dir, label_colname=label_colname,
+        select_highly_variable_gene=args.highlyGene, do_CPM=args.CPM, do_log=args.log, drop_prob=args.drop_prob
+    )

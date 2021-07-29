@@ -45,7 +45,7 @@ python preprocess/h5ad_to_csv.py data/oh5ad/abula-muris-senis-facs-processed-off
 ```
 
 
-2. Apply CLEAR
+### 2. Apply CLEAR
 
 we can apply CLEAR with the following command:
 
