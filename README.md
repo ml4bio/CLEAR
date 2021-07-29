@@ -51,12 +51,12 @@ we can apply CLEAR with the following command:
 
 For baron-mouse,
 ```
-python /CLEAR/main_pcl_cjy.py --lr 10 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/baron-mouse_counts.csv" --label_data "data/ocsv/baron-mouse_labels.csv" --exp-dir CLEAR/exp_tmp --gpu 0 --epochs 500
+python /CLEAR/main_pcl.py --lr 10 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/baron-mouse_counts.csv" --label_data "data/ocsv/baron-mouse_labels.csv" --exp-dir CLEAR/exp_tmp --gpu 0 --epochs 500
 ```
 
 For abula-muris-senis-facs-processed-official-annotations-Diaphragm
 ```
-python /CLEAR/main_pcl_cjy.py --lr 5e-1 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_counts.csv" --label_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_labels.csv" --exp-dir exp_tmp --gpu 0 --log --highlyGene --epochs 500 --save-freq 1
+python /CLEAR/main_pcl.py --lr 5e-1 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_counts.csv" --label_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_labels.csv" --exp-dir exp_tmp --gpu 0 --log --highlyGene --epochs 500 --save-freq 1
 ```
 
 ## Citation
