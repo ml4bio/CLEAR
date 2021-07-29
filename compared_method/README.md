@@ -1,1 +1,0 @@
-Compared Methods
