@@ -47,22 +47,22 @@ parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
 parser.add_argument('--epochs', default=100, type=int, metavar='N',
                     help='number of total epochs to run')
 
-parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
+parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
 
-parser.add_argument('-b', '--batch-size', default=512, type=int,
+parser.add_argument('-b', '--batch_size', default=512, type=int,
                     metavar='N',
                     help='mini-batch size (default: 256), this is the total '
                          'batch size of all GPUs on the current node when '
                          'using Data Parallel or Distributed Data Parallel')
 
-parser.add_argument('--lr', '--learning-rate', default=5e-3, type=float,
+parser.add_argument('--lr', '--learning_rate', default=5e-3, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
 
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum of SGD solver')
 
-parser.add_argument('--wd', '--weight-decay', default=1e-6, type=float,
+parser.add_argument('--wd', '--weight_decay', default=1e-6, type=float,
                     metavar='W', help='weight decay (default: 1e-4)',
                     dest='weight_decay')
 
@@ -72,11 +72,11 @@ parser.add_argument('--resume', default='', type=str, metavar='PATH',
 parser.add_argument('--schedule', default=[100, 120], nargs='*', type=int,
                     help='learning rate schedule (when to drop lr by 10x), if use cos, then it will not be activated')
 
-parser.add_argument('--low-dim', default=128, type=int,
+parser.add_argument('--low_dim', default=128, type=int,
                     help='feature dimension (default: 128)')
-parser.add_argument('--pcl-r', default=1024, type=int,
+parser.add_argument('--pcl_r', default=1024, type=int,
                     help='queue size; number of negative pairs; needs to be smaller than num_cluster (default: 16384)')
-parser.add_argument('--moco-m', default=0.999, type=float,
+parser.add_argument('--moco_m', default=0.999, type=float,
                     help='moco momentum of updating key encoder (default: 0.999)')
 
 parser.add_argument('--temperature', default=0.2, type=float,
@@ -85,7 +85,7 @@ parser.add_argument('--temperature', default=0.2, type=float,
 parser.add_argument('--cos', action='store_true',
                     help='use cosine lr schedule')
 
-parser.add_argument('--warmup-epoch', default=5, type=int,
+parser.add_argument('--warmup_epoch', default=5, type=int,
                     help='number of warm-up epochs to only train with InfoNCE loss')
 
 # augmentation prob
@@ -108,14 +108,14 @@ parser.add_argument('--gpu', default=0, type=int,   #None
                     help='GPU id to use.')
 
 # logs and savings
-parser.add_argument('-e', '--eval-freq', default=10, type=int,
+parser.add_argument('-e', '--eval_freq', default=10, type=int,
                     metavar='N', help='Save frequency (default: 10)',
-                    dest='save_freq')
+                    dest='eval_freq')
 
-parser.add_argument('-l', '--log-freq', default=10, type=int,
+parser.add_argument('-l', '--log_freq', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
 
-parser.add_argument('--exp-dir', default='./experiment_pcl', type=str,
+parser.add_argument('--exp_dir', default='./experiment_pcl', type=str,
                     help='experiment directory')
 # CJY metric
 parser.add_argument('--metric_dir', default='./result', type=str,
