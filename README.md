@@ -22,7 +22,7 @@ conda env create -f Rdata_environment.yml
 ### Git from github
 
 ```
-git https://github.com/ml4bio/CLEAR
+git clone https://github.com/ml4bio/CLEAR.git
 cd ~/CLEAR/
 ```
 
