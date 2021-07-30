@@ -85,6 +85,12 @@ def cluster_acc(y_true, y_pred):
     # Return
         accuracy, in [0,1]
     """
+    if isinstance(y_true, pd.DataFrame):
+        y_true = y_true.values
+
+    if isinstance(y_pred, pd.DataFrame):
+        y_pred = y_pred.values
+
     # CJY 2021.6.20 for batch effect dataset
     #y_true = y_true.to_list()
     y_pred = y_pred.astype(np.int64)
