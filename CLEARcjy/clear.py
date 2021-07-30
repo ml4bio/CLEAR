@@ -96,11 +96,11 @@ parser.add_argument("--aug_prob", type=float, default=0.5,
 parser.add_argument('--cluster_name', default='kmeans', type=str,
                     help='name of clustering method', dest="cluster_name")
 
-parser.add_argument('--num_cluster', default='7', type=str,
+parser.add_argument('--num_cluster', default='-1', type=str,
                     help='number of clusters', dest="num_cluster")
 
 # random
-parser.add_argument('--random_seed', default=0, type=int,
+parser.add_argument('--seed', default=0, type=int,
                     help='seed for initializing training. ')
 
 # gpu
@@ -320,10 +320,9 @@ def main_worker(args):
             if gt_labels is not None:
                 # perform kmeans
                 if args.cluster_name == "kmeans":
-                    random_seed = args.random_seed
-                    num_cluster = args.num_cluster
-                    pd_labels = KMeans(n_clusters=num_cluster, random_state=random_seed).fit(embeddings)
-
+                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else  args.num_cluster
+                    pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings)
+                    # compute metrics
                     eval_supervied_metrics = M.compute_metrics(gt_labels, pd_labels)
                     print("{}\t {}\n".format(epoch, eval_supervied_metrics))
 
