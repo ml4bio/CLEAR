@@ -156,6 +156,15 @@ def main_worker(args):
     input_h5ad_path = args.input_h5ad_path
     processed_adata = sc.read_h5ad(input_h5ad_path)
 
+    # find dataset name
+    pre_path, filename = os.path.split(input_h5ad_path)
+    dataset_name, ext = os.path.splitext(filename)
+    # for batch effect dataset3
+    if dataset_name == "counts":
+        dataset_name = pre_path.split("/")[-1]
+    if dataset_name == "":
+        dataset_name = "unknown"
+
     # Define Transformation
     args_transformation = {
         # crop
@@ -306,12 +315,12 @@ def main_worker(args):
         # training log & unsupervised metrics
         if epoch % args.log_freq == 0 or epoch == args.epochs - 1:
             if epoch == 0:
-                with open(os.path.join(args.exp_dir, f'log.txt'), "w") as f:
+                with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "w") as f:
                     f.writelines(f"epoch\t" + '\t'.join((str(key) for key in train_unsupervised_metrics.keys())) + "\n")
                     f.writelines(f"{epoch}\t" + '\t'.join((str(train_unsupervised_metrics[key]) for key in train_unsupervised_metrics.keys())) + "\n")
             else:
-                with open(os.path.join(args.exp_dir, f'log.txt'), "a") as f:
-                    f.writelines(f"{epoch}\t" + '\t'.join((str(elem) for elem in train_unsupervised_metrics)) + "\n")
+                with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "a") as f:
+                    f.writelines(f"{epoch}\t" + '\t'.join((str(train_unsupervised_metrics[key]) for key in train_unsupervised_metrics.keys())) + "\n")
 
         # inference log & supervised metrics
         if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
@@ -330,11 +339,6 @@ def main_worker(args):
     # 3. Final Savings
     # save pre-name of dataset
     save_path = args.save_dir
-    pre_path, filename = os.path.split(input_h5ad_path)
-    dataset_name, ext = os.path.splitext(filename)
-    # for batch effect dataset3
-    if dataset_name == "counts":
-        dataset_name = pre_path.split("/")[-1]
 
     # save feature & labels
     best_features = embeddings
@@ -412,7 +416,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
     progress.display(i+1)
 
-    unsupervised_metrics = {"accuracy": acc_inst.avg, "loss": losses.avg}
+    unsupervised_metrics = {"accuracy": acc_inst.avg.item(), "loss": losses.avg}
 
     return unsupervised_metrics
             
