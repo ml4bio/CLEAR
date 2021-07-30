@@ -65,7 +65,7 @@ def compute_metrics(y_true, y_pred):
     metrics = {}
     metrics["ARI"] = ARI(y_true, y_pred)
     metrics["NMI"] = NMI(y_true, y_pred)
-    metrics["CA"] = cluster_acc(y_true.values, y_pred.values)   #cluster_acc(y_true, y_pred)
+    metrics["CA"] = cluster_acc(y_true, y_pred)   #cluster_acc(y_true, y_pred)
     metrics["JI"] = Jaccard_index(y_true, y_pred)
     metrics["CS"] = completeness_score(y_true, y_pred)
     metrics["HS"] = homogeneity_score(y_true, y_pred)
