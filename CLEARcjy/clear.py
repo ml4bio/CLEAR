@@ -321,7 +321,7 @@ def main_worker(args):
                 # perform kmeans
                 if args.cluster_name == "kmeans":
                     num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else  args.num_cluster
-                    pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings)
+                    pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
                     # compute metrics
                     eval_supervied_metrics = M.compute_metrics(gt_labels, pd_labels)
                     print("{}\t {}\n".format(epoch, eval_supervied_metrics))
