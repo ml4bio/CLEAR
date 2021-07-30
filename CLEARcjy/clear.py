@@ -118,8 +118,8 @@ parser.add_argument('-l', '--log_freq', default=10, type=int,
 parser.add_argument('--exp_dir', default='./experiment_pcl', type=str,
                     help='experiment directory')
 # CJY metric
-parser.add_argument('--metric_dir', default='./result', type=str,
-                    help='experiment directory')
+parser.add_argument('--save_dir', default='./result', type=str,
+                    help='result saving directory')
 
 
 def main():
@@ -329,7 +329,7 @@ def main_worker(args):
 
     # 3. Final Savings
     # save pre-name of dataset
-    save_path = args.metric_dir
+    save_path = args.save_dir
     pre_path, filename = os.path.split(input_h5ad_path)
     dataset_name, ext = os.path.splitext(filename)
     # for batch effect dataset3
@@ -410,6 +410,8 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         end = time.time()
 
         if i % args.log_freq == 0:
+            print(i)
+            print(args.log_fred)
             progress.display(i)
 
     unsupervised_metrics = {"accuracy": acc_inst.avg, "loss": losses.avg}
@@ -435,7 +437,6 @@ def inference(eval_loader, model):
     labels = np.concatenate(labels, axis=0)
 
     return features, labels
-
 
     
 def run_sklearn_kmeans(features, labels, num_cluster):
