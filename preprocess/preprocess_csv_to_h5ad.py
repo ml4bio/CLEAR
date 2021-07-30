@@ -135,8 +135,8 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
 if __name__=="__main__":
     args = parser.parse_args()
 
-    count_csv_path = args.count_csv_data
-    label_csv_path = args.label_csv_data
+    count_csv_path = args.count_csv_path
+    label_csv_path = args.label_csv_path
     save_h5ad_dir = args.save_h5ad_dir
     label_colname = args.label_colname
 
