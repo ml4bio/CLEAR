@@ -332,8 +332,11 @@ def main_worker(args):
                     num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else  args.num_cluster
                     pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
                     # compute metrics
-                    eval_supervied_metrics = M.compute_metrics(gt_labels, pd_labels)
-                    print("{}\t {}\n".format(epoch, eval_supervied_metrics))
+                    eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
+                    print("{}\t {}\n".format(epoch, eval_supervised_metrics))
+
+                    with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "a") as f:
+                        f.writelines(f"{epoch}\t" + '\t'.join((str(eval_supervised_metrics[key]) for key in eval_supervised_metrics.keys())) + "\n")
 
 
     # 3. Final Savings
@@ -343,7 +346,7 @@ def main_worker(args):
     # save feature & labels
     best_features = embeddings
     best_pd_labels = pd_labels
-    best_metrics = eval_supervied_metrics
+    best_metrics = eval_supervised_metrics
     gt_labels = gt_labels
 
     save_path = os.path.join(save_path, "CLEAR")
