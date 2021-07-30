@@ -315,7 +315,7 @@ def main_worker(args):
 
         # inference log & supervised metrics
         if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
-            embeddings, gt_labels = inference(eval_loader, model, args)
+            embeddings, gt_labels = inference(eval_loader, model)
             # gt_label exists and metric can be computed
             if gt_labels is not None:
                 # perform kmeans
