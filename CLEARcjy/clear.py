@@ -342,6 +342,10 @@ def main_worker(args):
     best_metrics = eval_supervied_metrics
     gt_labels = gt_labels
 
+    save_path = os.path.join(save_path, "CLEAR")
+    if os.path.exists(save_path)!=True:
+        os.makedirs(save_path)
+
     np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), best_features, delimiter=',')
     label_decoded = [train_dataset.label_decoder[i] for i in gt_labels]
 
@@ -352,9 +356,6 @@ def main_worker(args):
     pd_labels_df.to_csv(os.path.join(save_path, "pd_label_CLEAR_{}.csv".format(dataset_name)))
 
     # write metrics into txt
-    save_path = os.path.join(save_path, "CLEAR")
-    if os.path.exists(save_path)!=True:
-        os.makedirs(save_path)
     txt_path = os.path.join(save_path, "metric_CLEAR.txt")
     f = open(txt_path, "a")
     record_string = dataset_name
@@ -409,10 +410,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % args.log_freq == 0:
-            print(i)
-            print(args.log_freq)
-            progress.display(i)
+    progress.display(i)
 
     unsupervised_metrics = {"accuracy": acc_inst.avg, "loss": losses.avg}
 
@@ -513,7 +511,7 @@ class ProgressMeter(object):
         entries += [str(meter) for meter in self.meters]
         print('\t'.join(entries))
 
-    def _get_batch_fmtstr(self, num_batches):
+    def get_batch_fmtstr(self, num_batches):
         num_digits = len(str(num_batches // 1))
         fmt = '{:' + str(num_digits) + 'd}'
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
