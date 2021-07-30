@@ -128,10 +128,7 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
             os.makedirs(save_h5ad_dir)
 
         _, counts_file_name = os.path.split(count_csv_path)
-        if label_csv_path != None:
-            save_file_name = counts_file_name.replace(".csv", ".h5ad")
-        else:
-            save_file_name = counts_file_name.replace(".csv", "_with_labels.h5ad")
+        save_file_name = counts_file_name.replace(".csv", ".h5ad").replace("_counts", "")
 
         save_path = os.path.join(save_h5ad_dir, save_file_name)
 
