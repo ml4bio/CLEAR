@@ -88,6 +88,10 @@ parser.add_argument('--cos', action='store_true',
 parser.add_argument('--warmup-epoch', default=5, type=int,
                     help='number of warm-up epochs to only train with InfoNCE loss')
 
+# augmentation prob
+parser.add_argument("--aug_prob", type=float, default=0.5,
+                    help="The prob of doing augmentation")
+
 # cluster
 parser.add_argument('--cluster_name', default='kmeans', type=str,
                     help='number of clusters', dest="num_cluster")

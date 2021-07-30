@@ -23,8 +23,6 @@ parser.add_argument("--log", action="store_true",
                     help='Whether do log operation before preprocessing')
 parser.add_argument("--highlyGene", action="store_true",
                     help="Whether select highly variable gene")
-parser.add_argument("--aug_prob", type=float, default=0.5,
-                    help="The prob of doing augmentation")
 parser.add_argument("--drop_prob", type=float, default=0.0,
                     help="simulate dropout events")
 
