@@ -94,7 +94,7 @@ parser.add_argument("--aug_prob", type=float, default=0.5,
 
 # cluster
 parser.add_argument('--cluster_name', default='kmeans', type=str,
-                    help='number of clusters', dest="num_cluster")
+                    help='name of clustering method', dest="cluster_name")
 
 parser.add_argument('--num_cluster', default='7', type=str,
                     help='number of clusters', dest="num_cluster")
