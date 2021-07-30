@@ -657,6 +657,9 @@ def preprocess_dataset(traindir: str="",
     #meta_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
     #meta_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
     #meta_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+
+    meta_frame.index = count_frame.index
+
     adata = sc.AnnData(X=count_frame, obs=meta_frame)
     
     #adata = sc.read()

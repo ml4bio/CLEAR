@@ -338,10 +338,10 @@ def main_worker(args):
                     pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
                     # compute metrics
                     eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
-                    print("{}\t {}\n".format(epoch, eval_supervised_metrics))
+                    print("Epoch: {}\t {}\n".format(epoch, eval_supervised_metrics))
 
                     with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
-                        f.writelines("Eval-epoch-{}\t{}\n".format(epoch, eval_supervised_metrics))
+                        f.writelines("{}\teval\t{}\n".format(epoch, eval_supervised_metrics))
 
 
     # 3. Final Savings
