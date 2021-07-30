@@ -410,7 +410,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % args.print_freq == 0:
+        if i % args.log_freq == 0:
             progress.display(i)
 
     unsupervised_metrics = {"accuracy": acc_inst.avg, "loss": losses.avg}
