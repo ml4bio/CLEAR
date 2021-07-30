@@ -27,7 +27,8 @@ from anndata import AnnData
 import scanpy as sc
 import pandas as pd
 
-from preprocess.preprocess_csv_to_h5ad import preprocess_dataset
+import metrics as M
+
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
@@ -35,7 +36,11 @@ model_names = sorted(name for name in models.__dict__
 
 parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
 
+# 1.input h5ad data
+parser.add_argument('--input_h5ad_path', type=str, default= "",
+                    help='path to input_h5ad')
 
+# 2.hyper-parameters
 parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
 
@@ -54,7 +59,6 @@ parser.add_argument('-b', '--batch-size', default=512, type=int,
 parser.add_argument('--lr', '--learning-rate', default=5e-3, type=float,
                     metavar='LR', help='initial learning rate', dest='lr')
 
-
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum of SGD solver')
 
@@ -62,21 +66,8 @@ parser.add_argument('--wd', '--weight-decay', default=1e-6, type=float,
                     metavar='W', help='weight decay (default: 1e-4)',
                     dest='weight_decay')
 
-parser.add_argument('--s', '--save-freq', default=10, type=int,
-                    metavar='N', help='Save frequency (default: 10)',
-                    dest='save_freq')
-
-parser.add_argument('-p', '--print-freq', default=100, type=int,
-                    metavar='N', help='print frequency (default: 10)')
-
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
-
-
-parser.add_argument('--seed', default=None, type=int,
-                    help='seed for initializing training. ')
-parser.add_argument('--gpu', default=None, type=int,
-                    help='GPU id to use.')
 
 parser.add_argument('--schedule', default=[100, 120], nargs='*', type=int,
                     help='learning rate schedule (when to drop lr by 10x), if use cos, then it will not be activated')
@@ -91,22 +82,38 @@ parser.add_argument('--moco-m', default=0.999, type=float,
 parser.add_argument('--temperature', default=0.2, type=float,
                     help='softmax temperature')
 
-
 parser.add_argument('--cos', action='store_true',
                     help='use cosine lr schedule')
-
-parser.add_argument('--num-cluster', default='7', type=str, 
-                    help='number of clusters', dest="num_cluster")
 
 parser.add_argument('--warmup-epoch', default=5, type=int,
                     help='number of warm-up epochs to only train with InfoNCE loss')
 
+# cluster
+parser.add_argument('--cluster_name', default='kmeans', type=str,
+                    help='number of clusters', dest="num_cluster")
+
+parser.add_argument('--num_cluster', default='7', type=str,
+                    help='number of clusters', dest="num_cluster")
+
+# random
+parser.add_argument('--seed', default=None, type=int,
+                    help='seed for initializing training. ')
+
+# gpu
+parser.add_argument('--gpu', default=None, type=int,
+                    help='GPU id to use.')
+
+# logs and savings
+parser.add_argument('-e', '--eval-freq', default=10, type=int,
+                    metavar='N', help='Save frequency (default: 10)',
+                    dest='save_freq')
+
+parser.add_argument('-l', '--log-freq', default=10, type=int,
+                    metavar='N', help='print frequency (default: 10)')
+
 parser.add_argument('--exp-dir', default='experiment_pcl', type=str,
                     help='experiment directory')
-
-
-
-# CJY
+# CJY metric
 parser.add_argument('--metric_dir', default='./result', type=str,
                     help='experiment directory')
 
@@ -133,24 +140,19 @@ def main():
     if not os.path.exists(args.exp_dir):
         os.mkdir(args.exp_dir)
 
-    main_worker(args.gpu, args)
+    main_worker(args)
 
 
-def main_worker(gpu, args):
-    # CJY
+def main_worker(args):
     print(args)
 
-    args.gpu = gpu
-    
-    if args.gpu is not None:
-        print("Use GPU: {} for training".format(args.gpu))
+    # 1. Build Dataloader
 
-    # Data loading code
-    traindir = args.count_data
-    labeldir = args.label_data
-    #
-    processed_adata = preprocess_dataset(traindir, labeldir, colname=args.label_colname, select_highly_variable_gene=args.highlyGene, do_CPM=args.CPM, do_log=args.log, drop_prob=args.drop_prob)
+    # Load h5ad data
+    input_h5ad_path = args.input_h5ad_path
+    processed_adata = sc.read_h5ad(input_h5ad_path)
 
+    # Define Transformation
     args_transformation = {
         # crop
         # without resize, it's better to remove crop
@@ -177,7 +179,6 @@ def main_worker(gpu, args):
         'apply_mutation_prob': args.aug_prob
     }
 
-
     train_dataset = pcl.loader.scRNAMatrixInstance(
         adata=processed_adata,
         transform=True,
@@ -191,10 +192,21 @@ def main_worker(gpu, args):
     if train_dataset.num_cells < 512:
         args.batch_size = train_dataset.num_cells
         args.pcl_r = train_dataset.num_cells
+
+    train_sampler = None
+    eval_sampler = None
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
+        num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True)
+
+    # dataloader for center-cropped images, use larger batch size to increase speed
+    eval_loader = torch.utils.data.DataLoader(
+        eval_dataset, batch_size=args.batch_size * 5, shuffle=False,
+        sampler=eval_sampler, num_workers=args.workers, pin_memory=True)
     
     args.num_cluster = len(train_dataset.unique_label) 
 
-    # create model
+    # 2. Create Model
     print("=> creating model 'MLP'")
     model = pcl.builder.MoCo(
         pcl.builder.MLPEncoder,
@@ -202,13 +214,17 @@ def main_worker(gpu, args):
         args.low_dim, args.pcl_r, args.moco_m, args.temperature)
     print(model)
 
-    
-    
+    if args.gpu is None:
+        raise Exception("Should specify GPU id for training with --gpu".format(args.gpu))
+    else:
+        print("Use GPU: {} for training".format(args.gpu))
+
+    cudnn.benchmark = True
     torch.cuda.set_device(args.gpu)
     model = model.cuda(args.gpu)
        
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss().cuda(args.gpu)
+    criterion = nn.CrossEntropyLoss()   #.cuda(args.gpu)
 
     optimizer = torch.optim.SGD(model.parameters(), args.lr,
                                 momentum=args.momentum,
@@ -232,41 +248,21 @@ def main_worker(gpu, args):
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
-    cudnn.benchmark = True
-
-    train_sampler = None
-    eval_sampler = None
-
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-        num_workers=args.workers, pin_memory=True, sampler=train_sampler, drop_last=True)
-    
-    # dataloader for center-cropped images, use larger batch size to increase speed
-    eval_loader = torch.utils.data.DataLoader(
-        eval_dataset, batch_size=args.batch_size*5, shuffle=False,
-        sampler=eval_sampler, num_workers=args.workers, pin_memory=True)
-
-
+    # 2. Train Encoder
     # CJY
-    best_ari = -1
-    best_nmi = -1
-    best_features = 0
-    best_pd_labels = 0
-    save_labels = 0
-
     # train the model
     for epoch in range(args.start_epoch, args.epochs):
-        
+
+        """
         cluster_result = None
-        if epoch>=args.warmup_epoch and epoch%args.save_freq==0:
-            # compute momentum features for center-cropped images
-            features, labels = compute_features(eval_loader, model, args)         
+        if epoch >= args.warmup_epoch and epoch % args.save_freq == 0:
+            features, labels = inference(eval_loader, model, args)
             if epoch == 10:
                 label_decoded = [train_dataset.label_decoder[i] for i in labels]
                 df = pd.DataFrame(label_decoded, columns=['x'])
-                df.to_csv(os.path.join(args.exp_dir, f'labels_{epoch}.csv'))
+                df.to_csv(os.path.join(args.exp_dir, f'pd_labels_{epoch}.csv'))
 
-            if epoch%args.save_freq==0:# and epoch<300:
+            if epoch % args.save_freq==0:# and epoch<300:
 
                 features[np.linalg.norm(features,axis=1)>1.5] /= 2 #account for the few samples that are computed twice  
                 
@@ -295,51 +291,78 @@ def main_worker(gpu, args):
 
                 with open(os.path.join(args.exp_dir, f'result.txt'), "a") as f:
                     f.writelines(f"{epoch}\t" + '\t'.join((str(elem) for elem in sklearn_kmeans_metrics)) +"\t" + str(acc) + "\n")
-
+                    
+        """
 
         adjust_learning_rate(optimizer, epoch, args)
 
         # train for one epoch
-        acc = train(train_loader, model, criterion, optimizer, epoch, args, None)
+        train_unsupervised_metrics = train(train_loader, model, criterion, optimizer, epoch, args)
 
-        # if (epoch+1)%5==0 and (not args.multiprocessing_distributed or (args.multiprocessing_distributed
-        #         and args.rank % ngpus_per_node == 0)):
-        #     save_checkpoint({
-        #         'epoch': epoch + 1,
-        #         'arch': args.arch,
-        #         'state_dict': model.state_dict(),
-        #         'optimizer' : optimizer.state_dict(),
-        #     }, is_best=False, filename='{}/checkpoint_{:04d}.pth.tar'.format(args.exp_dir,epoch))
+        # training log & unsupervised metrics
+        if epoch % args.log_freq == 0 or epoch == args.epochs - 1:
+            if epoch == 0:
+                with open(os.path.join(args.exp_dir, f'log.txt'), "w") as f:
+                    f.writelines(f"epoch\t" + '\t'.join((str(key) for key in train_unsupervised_metrics.keys())) + "\n")
+                    f.writelines(f"{epoch}\t" + '\t'.join((str(train_unsupervised_metrics[key]) for key in train_unsupervised_metrics.keys())) + "\n")
+            else:
+                with open(os.path.join(args.exp_dir, f'log.txt'), "a") as f:
+                    f.writelines(f"{epoch}\t" + '\t'.join((str(elem) for elem in train_unsupervised_metrics)) + "\n")
 
-    # save txt
-    save_path = args.metric_dir  #"./result/"
-    #save_path = "./result_dropout/"
-    pre_path, filename = os.path.split(traindir)
+        # inference log & supervised metrics
+        if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
+            embeddings, gt_labels = inference(eval_loader, model, args)
+            # gt_label exists and metric can be computed
+            if gt_labels is not None:
+                # perform kmeans
+                if args.cluster_name == "kmeans":
+                    random_seed = args.random_seed
+                    num_cluster = args.num_cluster
+                    pd_labels = KMeans(n_clusters=num_cluster, random_state=random_seed).fit(embeddings)
+
+                    eval_supervied_metrics = M.compute_metrics(gt_labels, pd_labels)
+                    print("{}\t {}\n".format(epoch, eval_supervied_metrics))
+
+
+    # 3. Final Savings
+    # save pre-name of dataset
+    save_path = args.metric_dir
+    pre_path, filename = os.path.split(input_h5ad_path)
     dataset_name, ext = os.path.splitext(filename)
-
     # for batch effect dataset3
     if dataset_name == "counts":
         dataset_name = pre_path.split("/")[-1]
 
-    save_path = os.path.join(save_path, "CLEAR")
-    if os.path.exists(save_path)!=True:
-        os.makedirs(save_path)
-    txt_path = os.path.join(save_path, "metric_CLEAR.txt")
-    f = open(txt_path, "a")
-    f.write("{} {} {}\n".format(dataset_name, best_ari, best_nmi))
-    f.close()
+    # save feature & labels
+    best_features = embeddings
+    best_pd_labels = pd_labels
+    best_metrics = eval_supervied_metrics
+    gt_labels = gt_labels
 
-    # save feature & label
     np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), best_features, delimiter=',')
-    label_decoded = [train_dataset.label_decoder[i] for i in save_labels]
+    label_decoded = [train_dataset.label_decoder[i] for i in gt_labels]
+
     save_labels_df = pd.DataFrame(label_decoded, columns=['x'])
     save_labels_df.to_csv(os.path.join(save_path, "gt_label_CLEAR_{}.csv".format(dataset_name)))
 
     pd_labels_df = pd.DataFrame(best_pd_labels, columns=['kmeans'])
     pd_labels_df.to_csv(os.path.join(save_path, "pd_label_CLEAR_{}.csv".format(dataset_name)))
 
+    # write metrics into txt
+    save_path = os.path.join(save_path, "CLEAR")
+    if os.path.exists(save_path)!=True:
+        os.makedirs(save_path)
+    txt_path = os.path.join(save_path, "metric_CLEAR.txt")
+    f = open(txt_path, "a")
+    record_string = dataset_name
+    for key in best_metrics.keys():
+        record_string += " {}".format(best_metrics[key])
+    record_string += "\n"
+    f.write(record_string)
+    f.close()
 
-def train(train_loader, model, criterion, optimizer, epoch, args, cluster_result=None):
+
+def train(train_loader, model, criterion, optimizer, epoch, args):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
     losses = AverageMeter('Loss', ':.4e')
@@ -365,7 +388,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args, cluster_result
             images[1] = images[1].cuda(args.gpu, non_blocking=True)
                 
         # compute output
-        output, target, output_proto, target_proto = model(im_q=images[0], im_k=images[1], cluster_result=cluster_result, index=index)
+        output, target, output_proto, target_proto = model(im_q=images[0], im_k=images[1], cluster_result=None, index=index)
         
         # InfoNCE loss
         loss = criterion(output, target)  
@@ -386,10 +409,12 @@ def train(train_loader, model, criterion, optimizer, epoch, args, cluster_result
         if i % args.print_freq == 0:
             progress.display(i)
 
-    return acc_inst.avg
+    unsupervised_metrics = {"accuracy": acc_inst.avg, "loss": losses.avg}
+
+    return unsupervised_metrics
             
-def compute_features(eval_loader, model, args):
-    print('Computing features...')
+def inference(eval_loader, model):
+    print('Inference...')
     model.eval()
     features = []
     labels = []
@@ -408,13 +433,7 @@ def compute_features(eval_loader, model, args):
 
     return features, labels
 
-def run_ARI(labels, cluster_result):
-    pred = cluster_result['im2cluster'][0].cpu().numpy()
-    print(pred.shape)
-    print(labels.shape)
-    ari = adjusted_rand_score(labels_true=labels, labels_pred=pred)
-    print(f"The ARI is {ari}\n")
-    return ari
+
     
 def run_sklearn_kmeans(features, labels, num_cluster):
     best_ari = 0
@@ -449,76 +468,6 @@ def run_scanpy_leiden(features, labels):
     sc.tl.leiden(adata, key_added="leiden_scVI", resolution=0.8)
 
 
-def run_kmeans(x, args):
-    """
-    Args:
-        x: data to be clustered
-    """
-    
-    print('performing kmeans clustering')
-    results = {'im2cluster':[],'centroids':[],'density':[]}
-    
-    for seed, num_cluster in enumerate(args.num_cluster):
-        # intialize faiss clustering parameters
-        d = x.shape[1]
-        k = int(num_cluster)
-        clus = faiss.Clustering(d, k)
-        clus.verbose = True
-        clus.niter = 20
-        clus.nredo = 5
-        clus.seed = seed
-        clus.max_points_per_centroid = 1000
-        clus.min_points_per_centroid = 10
-
-        res = faiss.StandardGpuResources()
-        cfg = faiss.GpuIndexFlatConfig()
-        cfg.useFloat16 = False
-        cfg.device = args.gpu    
-        index = faiss.GpuIndexFlatL2(res, d, cfg)  
-
-        clus.train(x, index)   
-
-        D, I = index.search(x, 1) # for each sample, find cluster distance and assignments
-        im2cluster = [int(n[0]) for n in I]
-        
-        # get cluster centroids
-        centroids = faiss.vector_to_array(clus.centroids).reshape(k,d)
-        
-        # sample-to-centroid distances for each cluster 
-        Dcluster = [[] for c in range(k)]          
-        for im,i in enumerate(im2cluster):
-            Dcluster[i].append(D[im][0])
-        
-        # concentration estimation (phi)        
-        density = np.zeros(k)
-        for i, dist in enumerate(Dcluster):
-            if len(dist)>1:
-                d = (np.asarray(dist)**0.5).mean()/np.log(len(dist)+10)            
-                density[i] = d     
-                
-        #if cluster only has one point, use the max to estimate its concentration        
-        dmax = density.max()
-        for i,dist in enumerate(Dcluster):
-            if len(dist)<=1:
-                density[i] = dmax 
-
-        density = density.clip(np.percentile(density,10),np.percentile(density,90)) #clamp extreme values for stability
-        density = args.temperature*density/density.mean()  #scale the mean to temperature 
-        
-        # convert to cuda Tensors for broadcast
-        centroids = torch.Tensor(centroids).cuda()
-        centroids = nn.functional.normalize(centroids, p=2, dim=1)    
-
-        im2cluster = torch.LongTensor(im2cluster).cuda()               
-        density = torch.Tensor(density).cuda()
-        
-        results['centroids'].append(centroids)
-        results['density'].append(density)
-        results['im2cluster'].append(im2cluster)    
-        
-    return results
-
-    
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     torch.save(state, filename)
     if is_best:
@@ -594,11 +543,6 @@ def accuracy(output, target, topk=(1,)):
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
-
-
-
-
-
 
 
 
