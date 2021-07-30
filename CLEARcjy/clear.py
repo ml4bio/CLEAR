@@ -100,7 +100,7 @@ parser.add_argument('--num_cluster', default='7', type=str,
                     help='number of clusters', dest="num_cluster")
 
 # random
-parser.add_argument('--seed', default=None, type=int,
+parser.add_argument('--random_seed', default=0, type=int,
                     help='seed for initializing training. ')
 
 # gpu
