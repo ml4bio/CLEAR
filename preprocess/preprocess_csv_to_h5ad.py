@@ -40,20 +40,20 @@ def dropout_events(adata, drop_prob=0.0):
     return adata
 
 
-def preprocess_csv_to_h5ad(count_path: str = "",
-                           label_path: str = "",
-                           save_dir: str = "",
+def preprocess_csv_to_h5ad(count_csv_path: str = "",
+                           label_csv_path: str = "",
+                           save_h5ad_dir: str = "",
                            label_colname: str = "x",
                            select_highly_variable_gene: bool = False,
                            do_CPM: bool = True,
                            do_log: bool = True,
                            drop_prob: float = 0.0):
     # read the count matrix from the path
-    count_frame = pd.read_csv(count_path, index_col=0)
+    count_frame = pd.read_csv(count_csv_path, index_col=0)
     print("counts shape:{}".format(count_frame.shape))
 
-    if label_path != None:
-        label_frame = pd.read_csv(label_path, index_col=0, header=0)
+    if label_csv_path != None:
+        label_frame = pd.read_csv(label_csv_path, index_col=0, header=0)
         print("labels shape:{}".format(label_frame.shape))
         label_frame.rename(columns={label_colname: 'x'}, inplace=True)
 
@@ -118,14 +118,14 @@ def preprocess_csv_to_h5ad(count_path: str = "",
     # adata_min = np.min(adata.X)
     # adata.X = (adata.X - adata_min)/(adata_max - adata_min)
 
-    if save_dir is not None:
-        _, counts_file_name = os.path.split(count_path)
-        if label_path != None:
+    if save_h5ad_dir is not None:
+        _, counts_file_name = os.path.split(count_csv_path)
+        if label_csv_path != None:
             save_file_name = counts_file_name.replace(".csv", ".h5ad")
         else:
             save_file_name = counts_file_name.replace(".csv", "_with_labels.h5ad")
 
-        save_path = os.path.join(save_dir, save_file_name)
+        save_path = os.path.join(save_h5ad_dir, save_file_name)
 
         adata.write(save_path)
         print("successfully convert and preprocess {} to {}!".format(counts_file_name, save_file_name))
@@ -135,12 +135,12 @@ def preprocess_csv_to_h5ad(count_path: str = "",
 if __name__=="__main__":
     args = parser.parse_args()
 
-    count_path = args.count_data
-    label_path = args.label_data
-    save_dir = args.save_dir
+    count_csv_path = args.count_csv_data
+    label_csv_path = args.label_csv_data
+    save_h5ad_dir = args.save_h5ad_dir
     label_colname = args.label_colname
 
     processed_adata = preprocess_csv_to_h5ad(
-        count_path, label_path, save_dir, label_colname=label_colname,
+        count_csv_path, label_csv_path, save_h5ad_dir, label_colname=label_colname,
         select_highly_variable_gene=args.highlyGene, do_CPM=args.CPM, do_log=args.log, drop_prob=args.drop_prob
     )
