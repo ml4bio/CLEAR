@@ -55,12 +55,17 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
     if label_csv_path != None:
         label_frame = pd.read_csv(label_csv_path, index_col=0, header=0)
         print("labels shape:{}".format(label_frame.shape))
-        label_frame.rename(columns={label_colname: 'x'}, inplace=True)
+        if count_frame.shape[0] != label_frame.shape[0]:
+            raise Exception("The shapes of counts and labels do not match!")
 
+        label_frame.rename(columns={label_colname: 'x'}, inplace=True)
         # label_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
         # label_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
         # label_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
         # label_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+
+        label_frame.index = count_frame.index
+
         adata = sc.AnnData(X=count_frame, obs=label_frame)
     else:
         adata = sc.AnnData(X=count_frame)
