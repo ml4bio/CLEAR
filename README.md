@@ -34,6 +34,7 @@ There are two kinds of input data format: rds and h5ad. The preprocessing step w
 In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad as references. 
 You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
 Here, we take "deng.rds" dataset for example.
+
 (1) download dataset.
 ```
 wget https://bioinformatics.cse.unr.edu/software/scDHA/resource/Reproducibility/Data/deng.rds -O data/original/rds/deng.rds
