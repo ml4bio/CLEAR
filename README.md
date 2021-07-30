@@ -16,7 +16,7 @@ conda env create -f CLEAR_environment.yml
 ```
 To process rds data, we slao should create a R environment:
 ```
-conda env create -f CLEAR_environment.yml
+conda env create -f Rdata_environment.yml
 ```
 
 ### Git from github
