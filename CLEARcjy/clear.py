@@ -411,7 +411,7 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
         if i % args.log_freq == 0:
             print(i)
-            print(args.log_fred)
+            print(args.log_freq)
             progress.display(i)
 
     unsupervised_metrics = {"accuracy": acc_inst.avg, "loss": losses.avg}
