@@ -165,6 +165,11 @@ def main_worker(args):
     if dataset_name == "":
         dataset_name = "unknown"
 
+    # save path
+    save_path = os.path.join(args.save_dir, "CLEAR")
+    if os.path.exists(save_path) != True:
+        os.makedirs(save_path)
+
     # Define Transformation
     args_transformation = {
         # crop
@@ -315,11 +320,11 @@ def main_worker(args):
         # training log & unsupervised metrics
         if epoch % args.log_freq == 0 or epoch == args.epochs - 1:
             if epoch == 0:
-                with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "w") as f:
+                with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "w") as f:
                     f.writelines(f"epoch\t" + '\t'.join((str(key) for key in train_unsupervised_metrics.keys())) + "\n")
                     f.writelines(f"{epoch}\t" + '\t'.join((str(train_unsupervised_metrics[key]) for key in train_unsupervised_metrics.keys())) + "\n")
             else:
-                with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "a") as f:
+                with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
                     f.writelines(f"{epoch}\t" + '\t'.join((str(train_unsupervised_metrics[key]) for key in train_unsupervised_metrics.keys())) + "\n")
 
         # inference log & supervised metrics
@@ -335,23 +340,16 @@ def main_worker(args):
                     eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
                     print("{}\t {}\n".format(epoch, eval_supervised_metrics))
 
-                    with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "a") as f:
+                    with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
                         f.writelines("Eval-epoch-{}\t".format(epoch) + eval_supervised_metrics + "\n")
 
 
     # 3. Final Savings
-    # save pre-name of dataset
-    save_path = args.save_dir
-
     # save feature & labels
     best_features = embeddings
     best_pd_labels = pd_labels
     best_metrics = eval_supervised_metrics
     gt_labels = gt_labels
-
-    save_path = os.path.join(save_path, "CLEAR")
-    if os.path.exists(save_path)!=True:
-        os.makedirs(save_path)
 
     np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), best_features, delimiter=',')
     label_decoded = [train_dataset.label_decoder[i] for i in gt_labels]
