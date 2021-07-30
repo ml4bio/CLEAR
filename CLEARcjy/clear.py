@@ -100,7 +100,7 @@ parser.add_argument('--seed', default=None, type=int,
                     help='seed for initializing training. ')
 
 # gpu
-parser.add_argument('--gpu', default=None, type=int,
+parser.add_argument('--gpu', default=0, type=int,   #None
                     help='GPU id to use.')
 
 # logs and savings
@@ -111,7 +111,7 @@ parser.add_argument('-e', '--eval-freq', default=10, type=int,
 parser.add_argument('-l', '--log-freq', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
 
-parser.add_argument('--exp-dir', default='experiment_pcl', type=str,
+parser.add_argument('--exp-dir', default='./experiment_pcl', type=str,
                     help='experiment directory')
 # CJY metric
 parser.add_argument('--metric_dir', default='./result', type=str,
