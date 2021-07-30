@@ -336,7 +336,7 @@ def main_worker(args):
                     print("{}\t {}\n".format(epoch, eval_supervised_metrics))
 
                     with open(os.path.join(args.exp_dir, 'log_{}.txt'.format(dataset_name)), "a") as f:
-                        f.writelines(f"{epoch}\t" + '\t'.join((str(eval_supervised_metrics[key]) for key in eval_supervised_metrics.keys())) + "\n")
+                        f.writelines("Eval-epoch-{}\t".format(epoch) + eval_supervised_metrics + "\n")
 
 
     # 3. Final Savings
