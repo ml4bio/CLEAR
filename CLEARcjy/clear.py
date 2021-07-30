@@ -338,7 +338,7 @@ def main_worker(args):
                     # random experiments
                     best_ari, best_eval_supervised_metrics, best_pd_labels = -1, None, None
                     for random_seed in range(20):
-                        pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
+                        pd_labels = KMeans(n_clusters=num_cluster, random_state=random_seed).fit(embeddings).labels_
                         # compute metrics
                         eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
                         if eval_supervised_metrics["ARI"] > best_ari:
