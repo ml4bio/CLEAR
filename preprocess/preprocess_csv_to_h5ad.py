@@ -124,6 +124,9 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
     # adata.X = (adata.X - adata_min)/(adata_max - adata_min)
 
     if save_h5ad_dir is not None:
+        if os.path.exists(save_h5ad_dir) != True:
+            os.makedirs(save_h5ad_dir)
+
         _, counts_file_name = os.path.split(count_csv_path)
         if label_csv_path != None:
             save_file_name = counts_file_name.replace(".csv", ".h5ad")
