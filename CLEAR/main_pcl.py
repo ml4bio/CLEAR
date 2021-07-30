@@ -684,10 +684,8 @@ def preprocess_dataset(traindir: str="",
     sc.pp.calculate_qc_metrics(adata, qc_vars=['ERCC'], percent_top=None, log1p=False, inplace=True)
     low_ERCC_mask = (adata.obs.pct_counts_ERCC < 10)
     adata = adata[low_ERCC_mask]
-  
 
     adata = dropout_events(adata, drop_prob=drop_prob)
-
 
     if select_highly_variable_gene and not do_log:
         sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=5000)
@@ -696,7 +694,7 @@ def preprocess_dataset(traindir: str="",
     sc.pp.normalize_total(adata, target_sum=1e4, exclude_highly_expressed=True)
     adata.raw = adata 
     
-    if np.max(adata.X>100) and do_log: 
+    if np.max(adata.X > 100) and do_log:
         sc.pp.log1p(adata)
 
     # before normalization, we can select the most variant genes

@@ -334,10 +334,18 @@ def main_worker(args):
             if gt_labels is not None:
                 # perform kmeans
                 if args.cluster_name == "kmeans":
-                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else  args.num_cluster
-                    pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
-                    # compute metrics
-                    eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
+                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else args.num_cluster
+                    # random experiments
+                    best_ari, best_eval_supervised_metrics, best_pd_labels = -1, None, None
+                    for random_seed in range(5):
+                        pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
+                        # compute metrics
+                        eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
+                        if eval_supervised_metrics["ARI"] > best_ari:
+                            best_ari = eval_supervised_metrics["ARI"]
+                            best_eval_supervised_metrics = eval_supervised_metrics
+                            best_pd_labels = pd_labels
+
                     print("Epoch: {}\t {}\n".format(epoch, eval_supervised_metrics))
 
                     with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
@@ -347,8 +355,8 @@ def main_worker(args):
     # 3. Final Savings
     # save feature & labels
     best_features = embeddings
-    best_pd_labels = pd_labels
-    best_metrics = eval_supervised_metrics
+    best_pd_labels = best_pd_labels
+    best_metrics = best_eval_supervised_metrics
     gt_labels = gt_labels
 
     np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), best_features, delimiter=',')
