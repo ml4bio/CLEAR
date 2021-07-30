@@ -10,54 +10,59 @@ The package can be installed based by `git `. Test environment is CentOS 7 opera
 
 ### (Recommanded) Use virtual environment with Anaconda (Python = 3.7)
 
-```bash
-conda create -n CLEAR python = 3.7
-conda activate CLEAR
+```
+conda env create -f CLEAR_environment.yml
+
+```
+To process rds data, we slao should create a R environment:
+```
+conda env create -f CLEAR_environment.yml
 ```
 
 ### Git from github
 
-```bash
+```
 git https://github.com/ml4bio/CLEAR
-cd ~/CLEAR/CLEAR
+cd ~/CLEAR/
 ```
 
 ## Quick Running
 
-### 1.Dataset preprocessing
+### 1. Prepare Dataset
 
-There are two kinds of input data format: rds and h5ad. The preprocessing step will , so we should transform them into csv files respectively. In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad as references. You can download them with the script "download-data.sh" in the "data" folder.
+There are two kinds of input data format: rds and h5ad. The preprocessing step will , so we should transform them into csv files respectively. 
+In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad as references. 
+You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
+Here, we take "deng.rds" dataset for example.
+(1) download dataset.
+```
+wget https://bioinformatics.cse.unr.edu/software/scDHA/resource/Reproducibility/Data/deng.rds -O data/original/rds/deng.rds
+```
 
-(1) rds files to csv files
+(2) convert format, from rds files to csv files.
 
 We can use the offered script "rds_to_csv.R" in the "preprocess" folder to accomplish this transfomation. The command line is as follows: 
-
-```bash
-Rscript preprocess/rds_to_csv.R data/rds/baron-mouse.rds data/ocsv/
 ```
-
-Then you can find the baron-mouse_counts.csv and baron-mouse_labels.csv inside the data/ocsv folder.
-
-(2) h5ad files to csv files (without preprocessing)
-
-```bash
-python preprocess/h5ad_to_csv.py data/oh5ad/abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad data/ocsv 0 0
+conda activate Rdata
+Rscript preprocess/rds_to_csv.R ./data/original/rds/ deng data/original/csv/
 ```
+Then you can find the baron-mouse_counts.csv and baron-mouse_labels.csv inside the data/original/csv folder.
 
+(3) preprocess csv files and generate input h5ad file.
+
+```
+conda activate CLEAR
+python preprocess/preprocess_csv_to_h5ad.py --count_csv_path="./data/original/csv/deng_counts.csv" --label_csv_path="./data/original/csv/deng_labels.csv" --save_h5ad_dir="./data/preprocessed/h5ad/" --label_colname="x" --log --drop_prob=0
+```
 
 ### 2. Apply CLEAR
 
 we can apply CLEAR with the following command:
+```
+python clear/clear.py --input_h5ad_path="./data/preprocessed/h5ad/deng.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0```
+```
+Note: output files are saved in ./result/CLEAR, including embeddings, ground truth labels, cluster results and some log files
 
-For baron-mouse,
-```
-python /CLEAR/main_pcl.py --lr 10 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/baron-mouse_counts.csv" --label_data "data/ocsv/baron-mouse_labels.csv" --exp-dir CLEAR/exp_tmp --gpu 0 --epochs 500
-```
-
-For abula-muris-senis-facs-processed-official-annotations-Diaphragm
-```
-python /CLEAR/main_pcl.py --lr 5e-1 --batch-size 512 --pcl-r 1024 --cos --count_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_counts.csv" --label_data "data/ocsv/abula-muris-senis-facs-processed-official-annotations-Diaphragm_labels.csv" --exp-dir exp_tmp --gpu 0 --log --highlyGene --epochs 500 --save-freq 1
-```
 
 ## Citation
 

@@ -6,7 +6,6 @@ import shutil
 import time
 import warnings
 import numpy as np
-import faiss
 
 import torch
 import torch.nn as nn
