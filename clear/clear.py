@@ -284,13 +284,15 @@ def main_worker(args):
         # inference log & supervised metrics
         if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
             embeddings, gt_labels = inference(eval_loader, model)
-            # gt_label exists and metric can be computed
-            if gt_labels[0] == -1:
-                # perform kmeans
-                if args.cluster_name == "kmeans":
-                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 and train_dataset.label is not None else args.num_cluster
+
+            # perform kmeans
+            if args.cluster_name == "kmeans":
+
+                # if gt_label exists and metric can be computed
+                if train_dataset.label is not None:
+                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else args.num_cluster
                     print("cluster num is set to {}".format(num_cluster))
-                    # random experiments
+                    # multiple random experiments
                     best_ari, best_eval_supervised_metrics, best_pd_labels = -1, None, None
                     for random_seed in range(1):
                         pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
@@ -300,38 +302,44 @@ def main_worker(args):
                             best_ari = eval_supervised_metrics["ARI"]
                             best_eval_supervised_metrics = eval_supervised_metrics
                             best_pd_labels = pd_labels
+                else:
+                    num_cluster = None if args.num_cluster == -1 else args.num_cluster
+                    print("cluster num is set to {}".format(num_cluster))
+                    best_pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
 
-                    print("Epoch: {}\t {}\n".format(epoch, eval_supervised_metrics))
+                print("Epoch: {}\t {}\n".format(epoch, eval_supervised_metrics))
 
-                    with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
-                        f.writelines("{}\teval\t{}\n".format(epoch, eval_supervised_metrics))
+                with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
+                    f.writelines("{}\teval\t{}\n".format(epoch, eval_supervised_metrics))
+
 
 
     # 3. Final Savings
     # save feature & labels
-    best_features = embeddings
-    best_pd_labels = best_pd_labels
-    best_metrics = best_eval_supervised_metrics
-    gt_labels = gt_labels
-
-    np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), best_features, delimiter=',')
+    np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), embeddings, delimiter=',')
     label_decoded = [train_dataset.label_decoder[i] for i in gt_labels]
 
-    save_labels_df = pd.DataFrame(label_decoded, columns=['x'])
-    save_labels_df.to_csv(os.path.join(save_path, "gt_label_CLEAR_{}.csv".format(dataset_name)))
+    if args.cluster_name == "kmeans":
+        pd_labels_df = pd.DataFrame(best_pd_labels, columns=['kmeans'])
+        pd_labels_df.to_csv(os.path.join(save_path, "pd_label_CLEAR_{}.csv".format(dataset_name)))
 
-    pd_labels_df = pd.DataFrame(best_pd_labels, columns=['kmeans'])
-    pd_labels_df.to_csv(os.path.join(save_path, "pd_label_CLEAR_{}.csv".format(dataset_name)))
+    if train_dataset.label is not None:
+        save_labels_df = pd.DataFrame(label_decoded, columns=['x'])
+        save_labels_df.to_csv(os.path.join(save_path, "gt_label_CLEAR_{}.csv".format(dataset_name)))
 
-    # write metrics into txt
-    txt_path = os.path.join(save_path, "metric_CLEAR.txt")
-    f = open(txt_path, "a")
-    record_string = dataset_name
-    for key in best_metrics.keys():
-        record_string += " {}".format(best_metrics[key])
-    record_string += "\n"
-    f.write(record_string)
-    f.close()
+        if args.cluster_name == "kmeans":
+            # write metrics into txt
+            best_metrics = best_eval_supervised_metrics
+            txt_path = os.path.join(save_path, "metric_CLEAR.txt")
+            f = open(txt_path, "a")
+            record_string = dataset_name
+            for key in best_metrics.keys():
+                record_string += " {}".format(best_metrics[key])
+            record_string += "\n"
+            f.write(record_string)
+            f.close()
+
+
 
 
 def train(train_loader, model, criterion, optimizer, epoch, args):
