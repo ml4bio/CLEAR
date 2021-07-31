@@ -9,11 +9,11 @@ parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
 # input & ouput
 parser.add_argument('--input_h5ad_path', type=str, default= "",
                     help='path to counts')
-parser.add_argument('--count_csv_path', type=str, default= "",
+parser.add_argument('--count_csv_path', type=str, default= None,
                     help='path to counts')
-parser.add_argument('--label_csv_path', type=str, default= "",
+parser.add_argument('--label_csv_path', type=str, default= None,
                     help='path to labels')
-parser.add_argument('--save_h5ad_dir', type=str, default= "",
+parser.add_argument('--save_h5ad_dir', type=str, default= "./",
                     help='dir to savings')
 parser.add_argument('--label_colname', type=str, default="x",
                     help='column name of labels in label.csv')
