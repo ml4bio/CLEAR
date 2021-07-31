@@ -114,7 +114,7 @@ class scRNAMatrixInstance(Dataset):
         if self.label is not None:
             label = self.label_encoder[self.label[index]]
         else:
-            label = None
+            label = -1
 
         if self.transform:
             sample_1 = self.RandomTransform(sample)

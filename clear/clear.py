@@ -285,7 +285,7 @@ def main_worker(args):
         if epoch % args.eval_freq == 0 or epoch == args.epochs - 1:
             embeddings, gt_labels = inference(eval_loader, model)
             # gt_label exists and metric can be computed
-            if gt_labels is not None:
+            if gt_labels[0] == -1:
                 # perform kmeans
                 if args.cluster_name == "kmeans":
                     num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 and train_dataset.label is not None else args.num_cluster
