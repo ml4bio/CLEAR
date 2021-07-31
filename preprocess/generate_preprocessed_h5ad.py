@@ -145,7 +145,7 @@ def preprocess_csv_to_h5ad(
         save_path = os.path.join(save_h5ad_dir, save_file_name)
 
         adata.write(save_path)
-        print("successfully convert and preprocess {} to {}!".format(counts_file_name, save_file_name))
+        print("Successfully generate preprocessed file: {}".format(save_file_name))
 
     return adata
 
