@@ -7,6 +7,8 @@ import os
 parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
 
 # input & ouput
+parser.add_argument('--input_h5ad_path', type=str, default= "",
+                    help='path to counts')
 parser.add_argument('--count_csv_path', type=str, default= "",
                     help='path to counts')
 parser.add_argument('--label_csv_path', type=str, default= "",
