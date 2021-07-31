@@ -59,7 +59,7 @@ class scRNAMatrixInstance(Dataset):
         self.adata = adata
 
         # data
-        self.data = np.array(self.adata.X)
+        self.data = self.adata.X   #np.array()
 
         # label (if exist, build the label encoder)
         if self.adata.obs.get("x") is not None:
