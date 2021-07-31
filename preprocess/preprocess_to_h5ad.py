@@ -38,39 +38,45 @@ def dropout_events(adata, drop_prob=0.0):
     return adata
 
 
-def preprocess_csv_to_h5ad(count_csv_path: str = "",
-                           label_csv_path: str = "",
-                           save_h5ad_dir: str = "",
-                           label_colname: str = "x",
-                           select_highly_variable_gene: bool = False,
-                           do_CPM: bool = True,
-                           do_log: bool = True,
-                           drop_prob: float = 0.0):
-    # read the count matrix from the path
-    count_frame = pd.read_csv(count_csv_path, index_col=0)
-    print("counts shape:{}".format(count_frame.shape))
+def preprocess_csv_to_h5ad(
+        input_h5ad_path=None, count_csv_path=None, label_csv_path=None, save_h5ad_dir="./", label_colname="x",
+        select_highly_variable_gene=False, do_CPM=True, do_log=True,
+        drop_prob=0.0
+):
+    # 1. read data from h5ad or csv files.
+    if input_h5ad_path != None and count_csv_path == None:
+        adata = sc.read_h5ad(input_h5ad_path)
+        print("Read data from h5ad file: {}".format(input_h5ad_path))
+    elif count_csv_path != None and input_h5ad_path == None:
+        # read the count matrix from the path
+        count_frame = pd.read_csv(count_csv_path, index_col=0)
+        print("counts shape:{}".format(count_frame.shape))
 
-    if label_csv_path != None:
-        label_frame = pd.read_csv(label_csv_path, index_col=0, header=0)
-        print("labels shape:{}".format(label_frame.shape))
-        if count_frame.shape[0] != label_frame.shape[0]:
-            raise Exception("The shapes of counts and labels do not match!")
+        if label_csv_path != None:
+            label_frame = pd.read_csv(label_csv_path, index_col=0, header=0)
+            print("labels shape:{}".format(label_frame.shape))
+            if count_frame.shape[0] != label_frame.shape[0]:
+                raise Exception("The shapes of counts and labels do not match!")
 
-        label_frame.rename(columns={label_colname: 'x'}, inplace=True)
-        # label_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
-        # label_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
-        # label_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
-        # label_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+            label_frame.rename(columns={label_colname: 'x'}, inplace=True)
+            # label_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
+            # label_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
+            # label_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
+            # label_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+            label_frame.index = count_frame.index
 
-        label_frame.index = count_frame.index
+            adata = sc.AnnData(X=count_frame, obs=label_frame)
+            print("Read data from csv file: {}".format(count_csv_path))
+            print("Read laebl from csv file: {}".format(label_csv_path))
+        else:
+            adata = sc.AnnData(X=count_frame)
+            print("Read data from csv file: {}".format(count_csv_path))
 
-        adata = sc.AnnData(X=count_frame, obs=label_frame)
-    else:
-        adata = sc.AnnData(X=count_frame)
+    elif input_h5ad_path != None and count_csv_path != None:
+        raise Exception("Can not address h5ad and csv files simultaneously!")
 
-    # adata = sc.read()
 
-    # do preprocessing on the adata file
+    # 2. preprocess anndata
     # basic filtering, filter the genes and cells
     # sc.pp.filter_cells(adata, min_counts=5000)
     sc.pp.filter_cells(adata, min_genes=200)
@@ -91,6 +97,7 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
     low_ERCC_mask = (adata.obs.pct_counts_ERCC < 10)
     adata = adata[low_ERCC_mask]
 
+    # dropout operation
     adata = dropout_events(adata, drop_prob=drop_prob)
 
     if select_highly_variable_gene and not do_log:
@@ -121,6 +128,7 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
     # adata_min = np.min(adata.X)
     # adata.X = (adata.X - adata_min)/(adata_max - adata_min)
 
+    # 3. save preprocessed h5ad
     if save_h5ad_dir is not None:
         if os.path.exists(save_h5ad_dir) != True:
             os.makedirs(save_h5ad_dir)
@@ -138,12 +146,7 @@ def preprocess_csv_to_h5ad(count_csv_path: str = "",
 if __name__=="__main__":
     args = parser.parse_args()
 
-    count_csv_path = args.count_csv_path
-    label_csv_path = args.label_csv_path
-    save_h5ad_dir = args.save_h5ad_dir
-    label_colname = args.label_colname
-
     processed_adata = preprocess_csv_to_h5ad(
-        count_csv_path, label_csv_path, save_h5ad_dir, label_colname=label_colname,
+        args.input_h5ad_path, args.count_csv_path, args.label_csv_path, args.save_h5ad_dir, args.label_colname,
         select_highly_variable_gene=args.highlyGene, do_CPM=args.CPM, do_log=args.log, drop_prob=args.drop_prob
     )

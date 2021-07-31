@@ -38,6 +38,7 @@ Here, we take "deng.rds" dataset for example.
 (1) download dataset.
 ```
 wget https://bioinformatics.cse.unr.edu/software/scDHA/resource/Reproducibility/Data/deng.rds -O data/original/rds/deng.rds
+wget https://ndownloader.figshare.com/files/23872487 -O data/original/h5ad/tmsfpoa-Diaphragm.h5ad
 ```
 
 (2) convert format, from rds files to csv files.
@@ -59,6 +60,8 @@ python preprocess/h5ad_to_csv.py "./data/original/h5ad/abula-muris-senis-facs-pr
 ```
 conda activate CLEAR
 python preprocess/preprocess_csv_to_h5ad.py --count_csv_path="./data/original/csv/deng_counts.csv" --label_csv_path="./data/original/csv/deng_labels.csv" --save_h5ad_dir="./data/preprocessed/h5ad/" --label_colname="x" --log --drop_prob=0
+
+python preprocess/preprocess_csv_to_h5ad.py --input_h5ad_path="./data/original/csv/tmsfpoa-Diaphragm_counts.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --label_colname="x" --log --drop_prob=0
 ```
 
 ### 2. Apply CLEAR

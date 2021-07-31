@@ -334,8 +334,6 @@ def main_worker(args):
             f.close()
 
 
-
-
 def train(train_loader, model, criterion, optimizer, epoch, args):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
