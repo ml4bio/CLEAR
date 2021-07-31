@@ -311,18 +311,16 @@ def main_worker(args):
 
 
 
-
-
     # 3. Final Savings
     # save feature & labels
     np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), embeddings, delimiter=',')
-    label_decoded = [train_dataset.label_decoder[i] for i in gt_labels]
 
     if args.cluster_name == "kmeans":
         pd_labels_df = pd.DataFrame(best_pd_labels, columns=['kmeans'])
         pd_labels_df.to_csv(os.path.join(save_path, "pd_label_CLEAR_{}.csv".format(dataset_name)))
 
     if train_dataset.label is not None:
+        label_decoded = [train_dataset.label_decoder[i] for i in gt_labels]
         save_labels_df = pd.DataFrame(label_decoded, columns=['x'])
         save_labels_df.to_csv(os.path.join(save_path, "gt_label_CLEAR_{}.csv".format(dataset_name)))
 
