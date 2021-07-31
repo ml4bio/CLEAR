@@ -19,10 +19,8 @@ import torchvision.models as models
 import pcl.loader
 import pcl.builder
 
-from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score, silhouette_score
 from sklearn.cluster import KMeans
 
-from anndata import AnnData
 import scanpy as sc
 import pandas as pd
 
@@ -270,47 +268,6 @@ def main_worker(args):
     # train the model
     for epoch in range(args.start_epoch, args.epochs):
 
-        """
-        cluster_result = None
-        if epoch >= args.warmup_epoch and epoch % args.save_freq == 0:
-            features, labels = inference(eval_loader, model, args)
-            if epoch == 10:
-                label_decoded = [train_dataset.label_decoder[i] for i in labels]
-                df = pd.DataFrame(label_decoded, columns=['x'])
-                df.to_csv(os.path.join(args.exp_dir, f'pd_labels_{epoch}.csv'))
-
-            if epoch % args.save_freq==0:# and epoch<300:
-
-                features[np.linalg.norm(features,axis=1)>1.5] /= 2 #account for the few samples that are computed twice  
-                
-                df = pd.DataFrame(features)
-                df.to_csv(os.path.join(args.exp_dir, f'features_{epoch}.csv'))
-
-                #cluster_result = run_kmeans(features,args)  #run kmeans clustering on master node
-                # save the clustering result
-                #torch.save(cluster_result,os.path.join(args.exp_dir, f'clusters_{epoch}_{args.num_cluster}'))  
-                #ari = run_ARI(labels, cluster_result)
-                sklearn_kmeans_metrics = run_sklearn_kmeans(features, labels, int(args.num_cluster))
-
-                tmp_ari = sklearn_kmeans_metrics[0]
-                tmp_nmi = sklearn_kmeans_metrics[1]
-                tmp_pd_label = sklearn_kmeans_metrics[-1]
-
-                if tmp_ari > best_ari:
-                    best_ari = tmp_ari
-                    best_nmi = tmp_nmi
-                    best_features = features
-                    best_pd_labels = tmp_pd_label
-                    save_labels = labels
-            
-                # use the leiden algorithm for clustering
-                #leiden_ari = run_scanpy_leiden(features, labels)
-
-                with open(os.path.join(args.exp_dir, f'result.txt'), "a") as f:
-                    f.writelines(f"{epoch}\t" + '\t'.join((str(elem) for elem in sklearn_kmeans_metrics)) +"\t" + str(acc) + "\n")
-                    
-        """
-
         adjust_learning_rate(optimizer, epoch, args)
 
         # train for one epoch
@@ -447,39 +404,6 @@ def inference(eval_loader, model):
     labels = np.concatenate(labels, axis=0)
 
     return features, labels
-
-    
-def run_sklearn_kmeans(features, labels, num_cluster):
-    best_ari = 0
-    best_nmi = 0
-    best_seed = -1
-    for random_seed in range(5):
-        kmeans = KMeans(n_clusters=num_cluster, random_state=random_seed).fit(features)
-        ari = adjusted_rand_score(labels_true=labels, labels_pred=kmeans.labels_)
-        nmi = normalized_mutual_info_score(labels_true=labels, labels_pred=kmeans.labels_)
-        if ari > best_ari:
-            best_ari = ari
-            best_seed = random_seed
-        if nmi > best_nmi:
-            best_nmi = nmi
-
-    silhou = silhouette_score(features, labels=labels)
-
-    print(f"The sklearn ARI is {best_ari} at sklearn seed {best_seed}\n")
-    print(f"The sklearn NMI is {best_nmi} \n")
-    print(f"The silhouette coefficient is {silhou}\n")
-    
-    return [best_ari, best_nmi, silhou, kmeans.labels_]
-
-
-def run_scanpy_leiden(features, labels):
-    adata = AnnData(X=None)
-    for i,z in enumerate(features.T):
-        adata.obs[f'Z_{i}'] = z
-    adata.obsm["X_scVI"] = features
-    sc.pp.neighbors(adata, use_rep="X_scVI", n_neighbors=20)
-    #sc.tl.umap(adata, min_dist=0.3)
-    sc.tl.leiden(adata, key_added="leiden_scVI", resolution=0.8)
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):

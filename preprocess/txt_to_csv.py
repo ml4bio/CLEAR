@@ -1,7 +1,8 @@
+# transform dataset 1-4 batch effect to csv
+
 import os
 import sys
 import pandas as pd
-
 
 
 def txt_to_csv(txt_path, save_path, transpose=False):

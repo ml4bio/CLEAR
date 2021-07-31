@@ -8,18 +8,18 @@ CLEAR (self-supervised **C**ontrastive **LEA**rning framework for sc**R**NA-seq)
 
 The package can be installed based by `git `. Test environment is CentOS 7 operation system, Nvidia TITAN X GPU.
 
-### (Recommanded) Use virtual environment with Anaconda (Python = 3.7)
-
+### 1. (Recommanded) Use virtual environment with Anaconda
+The main environment for CLEAR can be installed with this command:
 ```
 conda env create -f CLEAR_environment.yml
 
 ```
-To process rds data, we slao should create a R environment:
+To process rds data, we should also create a R environment:
 ```
 conda env create -f Rdata_environment.yml
 ```
 
-### Git from github
+### 2. Git clone from github
 
 ```
 git https://github.com/ml4bio/CLEAR
@@ -48,6 +48,11 @@ conda activate Rdata
 Rscript preprocess/rds_to_csv.R ./data/original/rds/ deng data/original/csv/
 ```
 Then you can find the baron-mouse_counts.csv and baron-mouse_labels.csv inside the data/original/csv folder.
+As for input h5ad files, you can use preprocess/h5ad_to_csv.py to convert them into csv format.
+```
+conda activate CLEAR
+python preprocess/h5ad_to_csv.py "./data/original/h5ad/abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad" "./data/original/csv/" 0 0 0 0
+```
 
 (3) preprocess csv files and generate input h5ad file.
 
@@ -60,7 +65,7 @@ python preprocess/preprocess_csv_to_h5ad.py --count_csv_path="./data/original/cs
 
 we can apply CLEAR with the following command:
 ```
-python clear/clear.py --input_h5ad_path="./data/preprocessed/h5ad/deng.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0```
+python clear/clear.py --input_h5ad_path="./data/preprocessed/h5ad/deng.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 Note: output files are saved in ./result/CLEAR, including embeddings, ground truth labels, cluster results and some log files
 
