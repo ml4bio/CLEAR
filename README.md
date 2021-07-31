@@ -69,6 +69,8 @@ python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/origin
 we can apply CLEAR with the following command:
 ```
 python clear/clear.py --input_h5ad_path="./data/preprocessed/h5ad/deng.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
+
+python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Diaphragm_preprocessed.h5ad" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 Note: output files are saved in ./result/CLEAR, including embeddings, ground truth labels, cluster results and some log files
 
