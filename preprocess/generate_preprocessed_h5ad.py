@@ -141,7 +141,7 @@ def preprocess_csv_to_h5ad(
     if save_h5ad_dir is not None:
         if os.path.exists(save_h5ad_dir) != True:
             os.makedirs(save_h5ad_dir)
-            
+
         save_path = os.path.join(save_h5ad_dir, save_file_name)
 
         adata.write(save_path)
