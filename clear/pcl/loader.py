@@ -59,7 +59,11 @@ class scRNAMatrixInstance(Dataset):
         self.adata = adata
 
         # data
-        self.data = np.array(self.adata.X)
+        # scipy.sparse.csr.csr_matrix or numpy.ndarray
+        if isinstance(self.adata.X, np.ndarray):
+            self.data = self.adata.X
+        else:
+            self.data = self.adata.X.toarray()
 
         # label (if exist, build the label encoder)
         if self.adata.obs.get("x") is not None:
