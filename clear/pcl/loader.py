@@ -57,12 +57,19 @@ class scRNAMatrixInstance(Dataset):
         super().__init__()
 
         self.adata = adata
-        # build the label encoder
-        self.label = self.adata.obs['x']
-        self.unique_label = list(set(self.label))
-        self.label_encoder = {k:v for k, v in zip(self.unique_label, range(len(self.unique_label)))}
-        self.label_decoder = {v:k for k, v in self.label_encoder.items()}
+
+        # data
         self.data = np.array(self.adata.X)
+
+        # label (if exist, build the label encoder)
+        if self.adata.obs.get("x") is not None:
+            self.label = self.adata.obs['x']
+            self.unique_label = list(set(self.label))
+            self.label_encoder = {k: v for k, v in zip(self.unique_label, range(len(self.unique_label)))}
+            self.label_decoder = {v: k for k, v in self.label_encoder.items()}
+        else:
+            self.label = None
+
         # do the transformation
         self.transform = transform
         self.num_cells, self.num_genes = self.adata.shape
@@ -100,18 +107,19 @@ class scRNAMatrixInstance(Dataset):
         
         sample = self.data[index]
 
-        label = self.label_encoder[self.label[index]]
-        if self.transform:
-            sample_1 = self.RandomTransform(sample)
-            sample_2 = self.RandomTransform(sample)
-            sample = [sample_1, sample_2]
+        if self.label is not None:
+            label = self.label_encoder[self.label[index]]
+            if self.transform:
+                sample_1 = self.RandomTransform(sample)
+                sample_2 = self.RandomTransform(sample)
+                sample = [sample_1, sample_2]
+        else:
+            label = None
         
         return sample, index, label
 
     def __len__(self):
         return self.adata.X.shape[0]
-
-
 
 
 class transformation():
