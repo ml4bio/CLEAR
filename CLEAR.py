@@ -41,7 +41,7 @@ parser.add_argument('--obs_label_colname', type=str, default= "x",
                     help='column name of the label in obs')
 
 # 2.hyper-parameters
-parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=32, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
 
 parser.add_argument('--epochs', default=100, type=int, metavar='N',
