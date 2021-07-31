@@ -300,12 +300,11 @@ def main_worker(args):
                             best_ari = eval_supervised_metrics["ARI"]
                             best_eval_supervised_metrics = eval_supervised_metrics
                             best_pd_labels = pd_labels
+                    print("Epoch: {}\t {}\n".format(epoch, eval_supervised_metrics))
                 else:
                     num_cluster = None if args.num_cluster == -1 else args.num_cluster
                     print("cluster num is set to {}".format(num_cluster))
                     best_pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
-
-                print("Epoch: {}\t {}\n".format(epoch, eval_supervised_metrics))
 
                 with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
                     f.writelines("{}\teval\t{}\n".format(epoch, eval_supervised_metrics))
