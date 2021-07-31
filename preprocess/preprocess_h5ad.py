@@ -49,6 +49,10 @@ def preprocess_csv_to_h5ad(
     if input_h5ad_path != None and count_csv_path == None:
         adata = sc.read_h5ad(input_h5ad_path)
         print("Read data from h5ad file: {}".format(input_h5ad_path))
+
+        _, h5ad_file_name = os.path.split(input_h5ad_path)
+        save_file_name = h5ad_file_name.replace(".h5ad", "_preprocessed.h5ad")
+
     elif count_csv_path != None and input_h5ad_path == None:
         # read the count matrix from the path
         count_frame = pd.read_csv(count_csv_path, index_col=0)
@@ -73,6 +77,9 @@ def preprocess_csv_to_h5ad(
         else:
             adata = sc.AnnData(X=count_frame)
             print("Read data from csv file: {}".format(count_csv_path))
+
+        _, counts_file_name = os.path.split(count_csv_path)
+        save_file_name = counts_file_name.replace(".csv", "_preprocessed.h5ad").replace("_counts", "")
 
     elif input_h5ad_path != None and count_csv_path != None:
         raise Exception("Can not address h5ad and csv files simultaneously!")
@@ -134,10 +141,7 @@ def preprocess_csv_to_h5ad(
     if save_h5ad_dir is not None:
         if os.path.exists(save_h5ad_dir) != True:
             os.makedirs(save_h5ad_dir)
-
-        _, counts_file_name = os.path.split(count_csv_path)
-        save_file_name = counts_file_name.replace(".csv", ".h5ad").replace("_counts", "")
-
+            
         save_path = os.path.join(save_h5ad_dir, save_file_name)
 
         adata.write(save_path)
