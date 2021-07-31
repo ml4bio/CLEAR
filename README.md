@@ -61,7 +61,7 @@ python preprocess/h5ad_to_csv.py "./data/original/h5ad/abula-muris-senis-facs-pr
 conda activate CLEAR
 python preprocess/preprocess_csv_to_h5ad.py --count_csv_path="./data/original/csv/deng_counts.csv" --label_csv_path="./data/original/csv/deng_labels.csv" --save_h5ad_dir="./data/preprocessed/h5ad/" --label_colname="x" --log --drop_prob=0
 
-python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Diaphragm.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --label_colname="x" --log --drop_prob=0
+python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Diaphragm.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log --drop_prob=0
 ```
 
 ### 2. Apply CLEAR
@@ -71,6 +71,7 @@ we can apply CLEAR with the following command:
 python clear/clear.py --input_h5ad_path="./data/preprocessed/h5ad/deng.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 
 python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Diaphragm_preprocessed.h5ad" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
+python -m pdb CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Diaphragm_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 Note: output files are saved in ./result/CLEAR, including embeddings, ground truth labels, cluster results and some log files
 

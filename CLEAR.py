@@ -37,6 +37,9 @@ parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
 parser.add_argument('--input_h5ad_path', type=str, default= "",
                     help='path to input_h5ad')
 
+parser.add_argument('--obs_label_colname', type=str, default= "x",
+                    help='column name of the label in obs')
+
 # 2.hyper-parameters
 parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
@@ -147,6 +150,7 @@ def main_worker(args):
     # Load h5ad data
     input_h5ad_path = args.input_h5ad_path
     processed_adata = sc.read_h5ad(input_h5ad_path)
+    obs_label_colname = args.obs_label_colname
 
     # find dataset name
     pre_path, filename = os.path.split(input_h5ad_path)
@@ -191,11 +195,13 @@ def main_worker(args):
 
     train_dataset = pcl.loader.scRNAMatrixInstance(
         adata=processed_adata,
+        obs_label_colname=obs_label_colname,
         transform=True,
         args_transformation=args_transformation
         )
     eval_dataset = pcl.loader.scRNAMatrixInstance(
         adata=processed_adata,
+        obs_label_colname=obs_label_colname,
         transform=False
         )
 

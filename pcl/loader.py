@@ -49,7 +49,8 @@ class ImageFolderInstance(datasets.ImageFolder):
 
 class scRNAMatrixInstance(Dataset):
     def __init__(self,
-                 adata: AnnData=None,
+                 adata: AnnData = None,
+                 obs_label_colname: str = "x",
                  transform: bool = False,
                  args_transformation: dict = {}
                  ):
@@ -66,13 +67,14 @@ class scRNAMatrixInstance(Dataset):
             self.data = self.adata.X.toarray()
 
         # label (if exist, build the label encoder)
-        if self.adata.obs.get("x") is not None:
-            self.label = self.adata.obs['x']
+        if self.adata.obs.get(obs_label_colname) is not None:
+            self.label = self.adata.obs[obs_label_colname]
             self.unique_label = list(set(self.label))
             self.label_encoder = {k: v for k, v in zip(self.unique_label, range(len(self.unique_label)))}
             self.label_decoder = {v: k for k, v in self.label_encoder.items()}
         else:
             self.label = None
+            print("Can not find corresponding labels")
 
         # do the transformation
         self.transform = transform
