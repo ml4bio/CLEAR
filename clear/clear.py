@@ -136,9 +136,6 @@ def main():
         warnings.warn('You have chosen a specific GPU. This will completely '
                       'disable data parallelism.')
 
-    if not os.path.exists(args.exp_dir):
-        os.mkdir(args.exp_dir)
-
     main_worker(args)
 
 
