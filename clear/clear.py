@@ -219,8 +219,6 @@ def main_worker(args):
         eval_dataset, batch_size=args.batch_size * 5, shuffle=False,
         sampler=eval_sampler, num_workers=args.workers, pin_memory=True)
     
-    args.num_cluster = len(train_dataset.unique_label) 
-
     # 2. Create Model
     print("=> creating model 'MLP'")
     model = pcl.builder.MoCo(
@@ -290,7 +288,8 @@ def main_worker(args):
             if gt_labels is not None:
                 # perform kmeans
                 if args.cluster_name == "kmeans":
-                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 else args.num_cluster
+                    num_cluster = len(train_dataset.unique_label) if args.num_cluster == -1 and train_dataset.label is not None else args.num_cluster
+                    print("cluster num is set to {}".format(num_cluster))
                     # random experiments
                     best_ari, best_eval_supervised_metrics, best_pd_labels = -1, None, None
                     for random_seed in range(1):
