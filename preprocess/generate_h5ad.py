@@ -19,19 +19,19 @@ parser.add_argument('--save_h5ad_dir', type=str, default="./",
                     help='dir to savings')
 
 # preprocessing
-parser.add_argument('--filter', action="store_false",
+parser.add_argument('--filter', action="store_true",
                     help='Whether do filtering')
 
-parser.add_argument('--norm', action="store_false",
+parser.add_argument('--norm', action="store_true",
                     help='Whether do normalization')
 
-parser.add_argument("--log", action="store_false",
+parser.add_argument("--log", action="store_true",
                     help='Whether do log operation')
 
-parser.add_argument("--scale", action="store_false",
+parser.add_argument("--scale", action="store_true",
                     help='Whether do scale operation')
 
-parser.add_argument("--select_hvg", action="store_false",
+parser.add_argument("--select_hvg", action="store_true",
                     help="Whether select highly variable gene")
 
 parser.add_argument("--drop_prob", type=float, default=0.0,
@@ -126,8 +126,6 @@ def preprocess_csv_to_h5ad(
         sc.pp.calculate_qc_metrics(adata, qc_vars=['ERCC'], percent_top=None, log1p=False, inplace=True)
         low_ERCC_mask = (adata.obs.pct_counts_ERCC < 10)
         adata = adata[low_ERCC_mask]
-
-        preprocessed_flag = True
 
     # dropout operation
     if drop_prob > 0:
