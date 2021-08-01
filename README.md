@@ -6,7 +6,7 @@ CLEAR (self-supervised **C**ontrastive **LEA**rning framework for sc**R**NA-seq)
 
 ## Installation
 
-The package can be installed based by `git`. Test environment is CentOS 7 operation system, Nvidia TITAN X GPU.
+The package can be installed by `git`. The test environment is CentOS 7 operation system, Nvidia TITAN X GPU.
 
 ### 1. Git clone from github
 
@@ -26,29 +26,29 @@ conda env create -f environment.yml
 ### 1. Prepare Data
 
 To help users start their analysis quickly, we provide some python scripts, 
-which can help users to convert the format of their files into h5ad format (required by our CLEAR script) and also preprocess the data simultaneously.
+which can help users to convert the format of their files into h5ad format (required by CLEAR) and preprocess the data simultaneously.
 For more individual preprocessing requirements, we also recommend some popular single-cell data analysis tools for data preprocessing instead of using the provided scripts.
 
-#### (1). Offered Preprocessing
+#### (1). General Preprocessing
 
-For those who need quick preparation for their data, we provide a Scanpy-based python script `generate_h5ad.py` in the `preprocess` folder to help with the format transforamtion and preprocessing. 
-It supports many kinds of input data formats, including 10X Genomics data, H5AD data and CSV file. 
-As for rds files, you can transform them into csv files by the script `rds_to_csv.py` in the `preprocess` folder and then preprocessed them with the same above script.
-The required R environment of this R script need to be set up by yourselves, of which the core package is `SingleCellExperiment`
+For those who need quick preparation for their data, we provide a Scanpy-based python script generate_h5ad.py in the preprocess folder to help with the format transformation and preprocessing.
+It supports many kinds of input data formats, including 10X Genomics data, H5AD data, and CSV files. 
+As for rds files, you can transform them into the csv files by the script `rds_to_csv.py` in the `preprocess` folder and then preprocessed them with the same above script.
+The required R environment of this R script needs to be set up by yourselves, of which the core package is `SingleCellExperiment`
 
-If you only want to convert you processed data into h5ad file, you can just set the input and output path when call the script. For instance, when dealing with h5ad file, you can run:
+If you only want to convert your processed data into the h5ad file, you can just set the input and output path when calling the script. For instance, when dealing with the h5ad file, you can run:
 ```bash
 python preprocess/generate_h5ad.py --input_h5ad_path=Path_to_input --save_h5ad_dir=Path_to_Save_Folder
 ```
-For 10X, you should use `--input_10X_path`; For csv, you should use `--count_csv_path` (and `--label_csv_path` for label if applicable)
+For 10X, you can use `--input_10X_path`; For csv, you can use `--count_csv_path` (and `--label_csv_path` for label if applicable)
 
-Except for the format transformation, our script also provides many options for preprocessing, such as filtering, log, nomalization and so on. 
+Except for the format transformation, our script also provides many options for preprocessing, such as filtering, log, normalization, and so on. 
 You can use `python generate_h5ad.py -h` for more details.
 
 #### (2). Individual Preprocessing
 
 For those who prefer a more individual data preparation, you can use [Scanpy](https://scanpy-tutorials.readthedocs.io/en/latest/) for preprocessing.
-After completing all preprocessing steps, you need to use the command `adata.write(USE_FOR_CLEAR.h5ad')` to save the h5ad file, and use this file as CLEAR input.
+After completing all preprocessing steps, you can use the command `adata.write(USE_FOR_CLEAR.h5ad')` to save the h5ad file, and use this file as CLEAR input.
 
 ### 2. Apply CLEAR
 
@@ -56,7 +56,7 @@ With prepared input data, you can call the following script to implement CLEAR:
 ```bash
 python CLEAR.py --input_h5ad_path="USE_FOR_CLEAR.h5ad" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
-Here, we only provide a set of commonly used CLEAR parameters for reference. You can run `python CLEAR.py -h` to find more information.
+Here, we only provide a set of commonly used CLEAR parameters for reference. You can run `python CLEAR.py -h` for more information.
 
 **Note**: output files are saved in ./result/CLEAR, including `embeddings (feature.csv)`, `ground truth labels (if applicable)`, `cluster results (if applicable)` and some `log files (log)`.
 
