@@ -66,7 +66,7 @@ You can then read the embeddings with Python (pd.read_csv) or R (read.csv) and i
 
 Here, we take `deng.rds` dataset as an example.
 
-### 1. download dataset.
+### 1. Download Dataset.
 
 You can either download all of the datasets we used in our experiments with the script "download-data.sh" in the "data" folder, or use a single command to download specific dataset.
 
@@ -75,12 +75,12 @@ Here, we take "tabula-muris-senis-facs-processed-official-annotations-Bladder.h5
 wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad
 ```
 
-### 2. generate preprocessed h5ad file.
+### 2. Generate Preprocessed H5AD File.
 ```bash
 python preprocess/generate_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log
 ```
 
-### 3. apply CLEAR
+### 3. Apply CLEAR
 ```bash
 python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
