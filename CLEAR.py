@@ -306,7 +306,7 @@ def main_worker(args):
                     with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
                         f.writelines("{}\teval\t{}\n".format(epoch, eval_supervised_metrics))
                 else:
-                    if args.num_cluster == -1:
+                    if args.num_cluster > 0:
                         num_cluster = args.num_cluster
 
                         print("cluster num is set to {}".format(num_cluster))
