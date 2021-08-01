@@ -19,6 +19,7 @@ cd ./CLEAR/
 The main environment for CLEAR can be installed with this command:
 ```bash
 conda env create -f environment.yml
+conda activate CLEAR
 ```
 
 ## Running CLEAR
