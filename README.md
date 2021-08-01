@@ -74,18 +74,6 @@ ii. Use `csv_to_h5ad.py` for quick start. `csv_to_h5ad.py` provides a more unifo
 
 For R tool users, we highly recommand you save the filtered csv file and create a h5ad file as input.
 
-```python
-#create anndata
-df = pd.read_csv('R_FILTERED_DATA.csv', index_col=0)
-cellinfo = pd.DataFrame(df.index,index=df.index,columns=['sample_index'])
-geneinfo = pd.DataFrame(df.columns,index=df.columns,columns=['genes_index'])
-adata = sc.AnnData(df, obs=cellinfo, var = geneinfo)
-
-#generate h5ad file for CLEAR input
-adata.write('USE_FOR_CLEAR.h5ad')
-```
-
-
 ### 2. Apply CLEAR
 
 we can apply CLEAR with the following command:
