@@ -21,35 +21,68 @@ The main environment for CLEAR can be installed with this command:
 conda env create -f environment.yml
 ```
 
-## Quick Running
+## Running CLEAR
 
 ### 1. Prepare Dataset
 
-First, original input datasets should be preprocessed  before feeding into CLEAR. 
-The datasets used in our paper include two file formats: h5ad and rds.
-In the example, we will concentrate on h5ad files and take "tabula-muris-senis-facs-processed-official-annotations-Bladder" for instance.
-There are two kinds of input data format: rds and h5ad. The preprocessing step will , so we should transform them into csv files respectively. 
-In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad as references. 
+To help users start their analysis quickly, we provide some python scripts to use. For more individual preprocessing requirements, we also recommend some popular single-cell data analysis tools for data preprocessing instead of using the provided scripts.
 
-(1) download dataset.
-You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
-Here, we take "deng.rds" dataset for example.
-```
-wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad
+#### (1). 10X Genomics data
+
+The widely-used 10X platform provides a `10x matrix` data structure: `barcodes.tsv.gz, features.tsv.gz, matrix.tsv.gz`
+
+i. (Recommanded) Use [Scanpy](https://scanpy-tutorials.readthedocs.io/) for data loading and individual data filtering.
+
+```python
+import scanpy as sc
+adata = sc.read_10x_mtx(data_path)
+...(data preprocessing steps with individual paramters, see Scanpy tutorial)
+adata.write('USE_FOR_CLEAR.h5ad')
 ```
 
-(2) generate preprocessed h5ad file.
+ii. Use `10X_to_h5ad.py' for quick start. `10X_to_h5ad.py' provides a more uniform data filtering function.
+
+```python
+
 ```
-python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log --drop_prob=0
+
+#### (2). CSV file
+
+If a expression profile (usually a csv file) is provided, 
+
+i. (Recommanded) Construct `Anndata` and preprocess the data by yourself with more unique filtering parameters
+
+```python
+#create anndata
+df = pd.read_csv('count.csv', index_col=0)
+cellinfo = pd.DataFrame(df.index,index=df.index,columns=['sample_index'])
+geneinfo = pd.DataFrame(df.columns,index=df.columns,columns=['genes_index'])
+adata = sc.AnnData(df, obs=cellinfo, var = geneinfo)
+
+#generate h5ad file for CLEAR input
+...(data preprocessing steps with individual paramters, see Scanpy tutorial)
+adata.write('USE_FOR_CLEAR.h5ad')
 ```
-As for rds files, you can transform them into csv files by the script "rds_to_csv.py" in the "preprocess" folder and then preprocessed them with the same above script.
-The required R environment of this R script need to be set up by yourselves, of which the core package is "SingleCellExperiment"
+
+ii. Use `csv_to_h5ad.py` for quick start. `csv_to_h5ad.py` provides a more uniform data filtering function. 
+
+```python
+
+```
+
+#### (3). Rdata
+
+For R tool users, we highly recommand you save the filtered csv file and create a h5ad file as input.
 
 ### 2. Apply CLEAR
 
 we can apply CLEAR with the following command:
 ```
+<<<<<<< HEAD
 python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
+=======
+python CLEAR.py --input_h5ad_path="USE_FOR_CLEAR.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
+>>>>>>> 6325d9d14988a4f3a500d72dfcfb66e9fac52d7c
 ```
 Note: output files are saved in ./result/CLEAR, including embeddings (feature.csv), ground truth labels (gt_label.csv if applicable), cluster results (pd_label.csv if applicable) and some log files (log)
 
