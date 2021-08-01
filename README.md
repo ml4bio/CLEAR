@@ -21,7 +21,7 @@ The main environment for CLEAR can be installed with this command:
 conda env create -f environment.yml
 ```
 
-## Quick Running
+## Running CLEAR
 
 ### 1. Prepare Dataset
 
@@ -31,21 +31,28 @@ To help users start their analysis quickly, we provide some python scripts to us
 
 The widely-used 10X platform provides a `10x matrix` data structure: `barcodes.tsv.gz, features.tsv.gz, matrix.tsv.gz`
 
-i. (Recommanded) Using Scanpy for data loading and individual data filtering.
+i. (Recommanded) Use [Scanpy](https://scanpy-tutorials.readthedocs.io/) for data loading and individual data filtering.
 
 ```python
 import scanpy as sc
 adata = sc.read_10x_mtx(data_path)
-...(data preprocessing steps)
+...(data preprocessing steps, see Scanpy tutorial)
 adata.write('USE_FOR_CLEAR.h5ad')
 ```
 
-(1) download dataset.
-You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
-Here, we take "deng.rds" dataset for example.
+ii. Use `10X_to_h5ad.py' for quick start. `10X_to_h5ad.py' provides a more uniform data filtering function.
+
+```python
+
 ```
-wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad
-```
+
+#### (2). CSV file
+
+If a expression profile (usually a csv file) is provided, 
+
+i. (Recommanded) Construct `Anndata` and preprocess the data by yourself with more unique filtering parameters
+
+ii. 
 
 (2) generate preprocessed h5ad file.
 ```
