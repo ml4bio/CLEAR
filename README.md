@@ -60,11 +60,7 @@ You can use your own script to accompulish preprocessing and you can also add so
 
 we can apply CLEAR with the following command:
 ```
-<<<<<<< HEAD
-python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
-=======
-python CLEAR.py --input_h5ad_path="USE_FOR_CLEAR.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
->>>>>>> 6325d9d14988a4f3a500d72dfcfb66e9fac52d7c
+python CLEAR.py --input_h5ad_path="USE_FOR_CLEAR.h5ad" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 Note: output files are saved in ./result/CLEAR, including embeddings (feature.csv), ground truth labels (gt_label.csv if applicable), cluster results (pd_label.csv if applicable) and some log files (log)
 
