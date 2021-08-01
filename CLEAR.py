@@ -306,17 +306,20 @@ def main_worker(args):
                     with open(os.path.join(save_path, 'log_CLEAR_{}.txt'.format(dataset_name)), "a") as f:
                         f.writelines("{}\teval\t{}\n".format(epoch, eval_supervised_metrics))
                 else:
-                    num_cluster = None if args.num_cluster == -1 else args.num_cluster
-                    print("cluster num is set to {}".format(num_cluster))
-                    best_pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
+                    if args.num_cluster == -1:
+                        num_cluster = args.num_cluster
 
+                        print("cluster num is set to {}".format(num_cluster))
+                        best_pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
+                    else:
+                        best_pd_labels = None
 
 
     # 3. Final Savings
     # save feature & labels
     np.savetxt(os.path.join(save_path, "feature_CLEAR_{}.csv".format(dataset_name)), embeddings, delimiter=',')
 
-    if args.cluster_name == "kmeans":
+    if best_pd_labels is not None:
         pd_labels_df = pd.DataFrame(best_pd_labels, columns=['kmeans'])
         pd_labels_df.to_csv(os.path.join(save_path, "pd_label_CLEAR_{}.csv".format(dataset_name)))
 
@@ -325,7 +328,7 @@ def main_worker(args):
         save_labels_df = pd.DataFrame(label_decoded, columns=['x'])
         save_labels_df.to_csv(os.path.join(save_path, "gt_label_CLEAR_{}.csv".format(dataset_name)))
 
-        if args.cluster_name == "kmeans":
+        if best_pd_labels is not None:
             # write metrics into txt
             best_metrics = best_eval_supervised_metrics
             txt_path = os.path.join(save_path, "metric_CLEAR.txt")
