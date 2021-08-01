@@ -25,11 +25,20 @@ conda env create -f environment.yml
 
 ### 1. Prepare Dataset
 
-First, original input datasets should be preprocessed  before feeding into CLEAR. 
-The datasets used in our paper include two file formats: h5ad and rds.
-In the example, we will concentrate on h5ad files and take "tabula-muris-senis-facs-processed-official-annotations-Bladder" for instance.
-There are two kinds of input data format: rds and h5ad. The preprocessing step will , so we should transform them into csv files respectively. 
-In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad as references. 
+To help users start their analysis quickly, we provide some python scripts to use. For more individual preprocessing requirements, we also recommend some popular single-cell data analysis tools for data preprocessing instead of using the provided scripts.
+
+#### (1). 10X Genomics data
+
+The widely-used 10X platform provides a `10x matrix` data structure: `barcodes.tsv.gz, features.tsv.gz, matrix.tsv.gz`
+
+i. (Recommanded) Using Scanpy for data loading and individual data filtering.
+
+```python
+import scanpy as sc
+adata = sc.read_10x_mtx(data_path)
+...(data preprocessing steps)
+adata.write('USE_FOR_CLEAR.h5ad')
+```
 
 (1) download dataset.
 You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
