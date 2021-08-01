@@ -63,7 +63,7 @@ Here, we provide a set of commonly used CLEAR parameters for reference
 python CLEAR.py --input_h5ad_path="USE_FOR_CLEAR.h5ad" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 
-Note: output files are saved in ./result/CLEAR, including `embeddings (feature.csv)`, `ground truth labels (if applicable)`, `cluster results (if applicable)` and some `log files (log)`.
+**Note**: output files are saved in ./result/CLEAR, including `embeddings (feature.csv)`, `ground truth labels (if applicable)`, `cluster results (if applicable)` and some `log files (log)`.
 
 You can then read the embeddings with Python (pd.read_csv) or R (read.csv) and incorperate it to the Anndata or Seurat for computing the neighborhood graph and following clustering.
 
