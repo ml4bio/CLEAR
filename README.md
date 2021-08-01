@@ -36,7 +36,7 @@ i. (Recommanded) Use [Scanpy](https://scanpy-tutorials.readthedocs.io/) for data
 ```python
 import scanpy as sc
 adata = sc.read_10x_mtx(data_path)
-...(data preprocessing steps, see Scanpy tutorial)
+...(data preprocessing steps with individual paramters, see Scanpy tutorial)
 adata.write('USE_FOR_CLEAR.h5ad')
 ```
 
@@ -52,20 +52,45 @@ If a expression profile (usually a csv file) is provided,
 
 i. (Recommanded) Construct `Anndata` and preprocess the data by yourself with more unique filtering parameters
 
-ii. 
+```python
+#create anndata
+df = pd.read_csv('count.csv', index_col=0)
+cellinfo = pd.DataFrame(df.index,index=df.index,columns=['sample_index'])
+geneinfo = pd.DataFrame(df.columns,index=df.columns,columns=['genes_index'])
+adata = sc.AnnData(df, obs=cellinfo, var = geneinfo)
 
-(2) generate preprocessed h5ad file.
+#generate h5ad file for CLEAR input
+...(data preprocessing steps with individual paramters, see Scanpy tutorial)
+adata.write('USE_FOR_CLEAR.h5ad')
 ```
-python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log --drop_prob=0
+
+ii. Use `csv_to_h5ad.py` for quick start. `csv_to_h5ad.py` provides a more uniform data filtering function. 
+
+```python
+
 ```
-As for rds files, you can transform them into csv files by the script "rds_to_csv.py" in the "preprocess" folder and then preprocessed them with the same above script.
-The required R environment of this R script need to be set up by yourselves, of which the core package is "SingleCellExperiment"
+
+#### (3). Rdata
+
+For R tool users, we highly recommand you save the filtered csv file and create a h5ad file as input.
+
+```python
+#create anndata
+df = pd.read_csv('R_FILTERED_DATA.csv', index_col=0)
+cellinfo = pd.DataFrame(df.index,index=df.index,columns=['sample_index'])
+geneinfo = pd.DataFrame(df.columns,index=df.columns,columns=['genes_index'])
+adata = sc.AnnData(df, obs=cellinfo, var = geneinfo)
+
+#generate h5ad file for CLEAR input
+adata.write('USE_FOR_CLEAR.h5ad')
+```
+
 
 ### 2. Apply CLEAR
 
 we can apply CLEAR with the following command:
 ```
-python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
+python CLEAR.py --input_h5ad_path="USE_FOR_CLEAR.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 Note: output files are saved in ./result/CLEAR, including embeddings (feature.csv), ground truth labels (gt_label.csv if applicable), cluster results (pd_label.csv if applicable) and some log files (log)
 
