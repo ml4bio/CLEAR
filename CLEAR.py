@@ -486,6 +486,5 @@ def accuracy(output, target, topk=(1,)):
         return res
 
 
-
 if __name__ == '__main__':
     main()

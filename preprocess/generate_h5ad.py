@@ -104,7 +104,7 @@ def preprocess_csv_to_h5ad(
 
 
     # 2. preprocess anndata
-    preprocessed_flag = do_filter | do_log | do_select_hvg | do_norm | do_scale | drop_prob > 0
+    preprocessed_flag = do_filter | do_log | do_select_hvg | do_norm | do_scale | (drop_prob > 0)
     # filter operation
     if do_filter == True:
         # basic filtering, filter the genes and cells
