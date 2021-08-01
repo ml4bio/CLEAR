@@ -42,7 +42,7 @@ python preprocess/generate_h5ad.py --input_h5ad_path=Path_to_input --save_h5ad_d
 ```
 For 10X, you should use `--input_10X_path`; For csv, you should use `--count_csv_path` (and `--label_csv_path` for label if applicable)
 
-Besides, format transformation, our script also provides many options for preprocessing, such as filtering, log, nomalization and so on. 
+Except for the format transformation, our script also provides many options for preprocessing, such as filtering, log, nomalization and so on. 
 You can use `python generate_h5ad.py -h` for more details.
 
 #### (2). Individual Preprocessing
