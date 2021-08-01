@@ -31,9 +31,9 @@ For more individual preprocessing requirements, we also recommend some popular s
 
 #### (1). General Preprocessing
 
-For those who need quick preparation for their data, we provide a Scanpy-based python script generate_h5ad.py in the preprocess folder to help with the format transformation and preprocessing.
+For those who need quick preparation for their data, we provide a Scanpy-based python script `generate_h5ad.py` in the `preprocess` folder to help with the format transformation and preprocessing.
 It supports many kinds of input data formats, including 10X Genomics data, H5AD data, and CSV files. 
-As for rds files, you can transform them into the csv files by the script `rds_to_csv.py` in the `preprocess` folder and then preprocessed them with the same above script.
+As for RDS files, you can transform them into the csv files by the script `rds_to_csv.py` in the `preprocess` folder and then preprocessed them with the same above script.
 The required R environment of this R script needs to be set up by yourselves, of which the core package is `SingleCellExperiment`
 
 If you only want to convert your processed data into the h5ad file, you can just set the input and output path when calling the script. For instance, when dealing with the h5ad file, you can run:
