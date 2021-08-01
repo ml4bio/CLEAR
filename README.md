@@ -84,6 +84,7 @@ python preprocess/generate_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfp
 ```bash
 python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
+If you want to compute metric automatically with existing ground truth label, you can set `--obs_label_colname` to specify the column name of label.
 
 ## Citation
 
