@@ -75,7 +75,7 @@ wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfp
 
 ### 2.generate preprocessed h5ad file.
 ```
-python preprocess/generate_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log --drop_prob=0
+python preprocess/generate_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log
 ```
 
 ### 3.apply CLEAR

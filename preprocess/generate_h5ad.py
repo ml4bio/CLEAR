@@ -4,17 +4,17 @@ import pandas as pd
 import scanpy as sc
 import os
 
-parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
+parser = argparse.ArgumentParser(description='PyTorch scRNA-seq format transformation and preprocessing')
 
 # input & ouput
 parser.add_argument('--input_h5ad_path', type=str, default=None,
-                    help='path to input h5ad files')
+                    help='path to input h5ad file')
 parser.add_argument('--input_10X_path', type=str, default=None,
-                    help='path to input 10X')
+                    help='path to input 10X file')
 parser.add_argument('--count_csv_path', type=str, default=None,
-                    help='path to counts csv')
+                    help='path to counts csv file')
 parser.add_argument('--label_csv_path', type=str, default=None,
-                    help='path to labels csv')
+                    help='path to labels csv file')
 parser.add_argument('--save_h5ad_dir', type=str, default="./",
                     help='dir to savings')
 
@@ -29,12 +29,9 @@ parser.add_argument("--log", action="store_false",
                     help='Whether do log operation')
 
 parser.add_argument("--scale", action="store_false",
-                    help='Whether do log operation')
+                    help='Whether do scale operation')
 
-parser.add_argument('--CPM', action="store_true",
-                    help='do count per million operation for raw counts')
-
-parser.add_argument("--highlyGene", action="store_true",
+parser.add_argument("--select_hvg", action="store_false",
                     help="Whether select highly variable gene")
 
 parser.add_argument("--drop_prob", type=float, default=0.0,
@@ -54,7 +51,7 @@ def dropout_events(adata, drop_prob=0.0):
 
 def preprocess_csv_to_h5ad(
         input_h5ad_path=None, input_10X_path=None, count_csv_path=None, label_csv_path=None, save_h5ad_dir="./",
-        do_filter=False, do_norm=False, select_highly_variable_gene=False, do_log=False, do_scale=False,
+        do_filter=False, do_log=False, do_select_hvg=False, do_norm=False, do_scale=False,
         drop_prob=0.0
 ):
     # 1. read data from h5ad, 10X or csv files.
@@ -107,7 +104,7 @@ def preprocess_csv_to_h5ad(
 
 
     # 2. preprocess anndata
-    preprocessed_flag = do_filter | do_norm | select_highly_variable_gene | do_CPM | do_log | do_scale | drop_prob>0
+    preprocessed_flag = do_filter | do_log | do_select_hvg | do_norm | do_scale | drop_prob > 0
     # filter operation
     if do_filter == True:
         # basic filtering, filter the genes and cells
@@ -136,35 +133,30 @@ def preprocess_csv_to_h5ad(
     if drop_prob > 0:
         adata = dropout_events(adata, drop_prob=drop_prob)
 
-    if select_highly_variable_gene and not do_log:
-        sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=5000)
-        adata = adata[:, adata.var.highly_variable]
+    # log operation and select highly variable gene
+    # before normalization, we can select the most variant genes
+    if do_log and np.max(adata.X > 100):
+        sc.pp.log1p(adata)
+
+        if do_select_hvg:
+            sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
+            adata = adata[:, adata.var.highly_variable]
+
+    else:
+        if do_select_hvg and not do_log:
+            sc.pp.highly_variable_genes(adata, flavor="seurat_v3", n_top_genes=5000)
+            adata = adata[:, adata.var.highly_variable]
 
     if do_norm == True:
         sc.pp.normalize_total(adata, target_sum=1e4, exclude_highly_expressed=True)
         adata.raw = adata
 
-    if np.max(adata.X > 100) and do_log:
-        sc.pp.log1p(adata)
-
-    # before normalization, we can select the most variant genes
-    if select_highly_variable_gene and do_log:
-        sc.pp.highly_variable_genes(adata, min_mean=0.0125, max_mean=3, min_disp=0.5)
-        adata = adata[:, adata.var.highly_variable]
-
     # after that, we do the linear scaling
-
-    # sc.pp.normalize_total(adata, target_sum=1e4, exclude_highly_expressed=True)
-
     # log operations and scale operations will hurt the
     # contrastive between the data
 
     if do_scale == True:
         sc.pp.scale(adata, max_value=10, zero_center=True)
-        # adata[np.isnan(adata.X)] = 0
-        # adata_max = np.max(adata.X)
-        # adata_min = np.min(adata.X)
-        # adata.X = (adata.X - adata_min)/(adata_max - adata_min)
 
     # 3. save preprocessed h5ad
     if save_h5ad_dir is not None:
@@ -185,6 +177,6 @@ if __name__=="__main__":
 
     processed_adata = preprocess_csv_to_h5ad(
         args.input_h5ad_path, args.input_10X_path, args.count_csv_path, args.label_csv_path, args.save_h5ad_dir,
-        do_filter=args.filter, do_norm=args.norm, select_highly_variable_gene=args.highlyGene,
-        do_CPM=args.CPM, do_log=args.log, drop_prob=args.drop_prob, do_scale=args.scale,
+        do_filter=args.filter, do_log=args.log, do_norm=args.norm, do_select_hvg=args.select_hvg, do_scale=args.scale,
+        drop_prob=args.drop_prob,
     )

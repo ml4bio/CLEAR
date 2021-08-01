@@ -24,19 +24,19 @@ from sklearn.cluster import KMeans
 import scanpy as sc
 import pandas as pd
 
-from metrics import compute_metrics #metrics import compute_metrics  #metrics as M
+from metrics import compute_metrics
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
     and callable(models.__dict__[name]))
 
-parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
+parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLEAR Training')
 
 # 1.input h5ad data
 parser.add_argument('--input_h5ad_path', type=str, default= "",
-                    help='path to input_h5ad')
+                    help='path to input h5ad file')
 
-parser.add_argument('--obs_label_colname', type=str, default= "x",
+parser.add_argument('--obs_label_colname', type=str, default= None,
                     help='column name of the label in obs')
 
 # 2.hyper-parameters
