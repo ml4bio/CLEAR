@@ -70,7 +70,7 @@ Here, we take `deng.rds` dataset as an example.
 
 You can either download all of the datasets we used in our experiments with the script "download-data.sh" in the "data" folder, or use a single command to download specific dataset.
 
-Here, we take "deng.rds" dataset for example.
+Here, we take "tabula-muris-senis-facs-processed-official-annotations-Bladder.h5ad " dataset for example.
 ```bash
 wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad
 ```
