@@ -64,8 +64,6 @@ You can then read the embeddings with Python (pd.read_csv) or R (read.csv) and i
 
 ## Running example
 
-Here, we take `deng.rds` dataset as an example.
-
 ### 1. Download Dataset.
 
 You can either download all of the datasets we used in our experiments with the script "download-data.sh" in the "data" folder, or use a single command to download specific dataset.
