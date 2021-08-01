@@ -54,7 +54,7 @@ def dropout_events(adata, drop_prob=0.0):
 
 def preprocess_csv_to_h5ad(
         input_h5ad_path=None, input_10X_path=None, count_csv_path=None, label_csv_path=None, save_h5ad_dir="./",
-        do_filter=False, do_norm=False, select_highly_variable_gene=False, do_CPM=True, do_log=False, do_scale=False,
+        do_filter=False, do_norm=False, select_highly_variable_gene=False, do_log=False, do_scale=False,
         drop_prob=0.0
 ):
     # 1. read data from h5ad, 10X or csv files.
