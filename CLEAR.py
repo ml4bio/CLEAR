@@ -24,7 +24,7 @@ from sklearn.cluster import KMeans
 import scanpy as sc
 import pandas as pd
 
-from .metrics import compute_metrics  #metrics as M
+from metrics import compute_metrics #metrics import compute_metrics  #metrics as M
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")

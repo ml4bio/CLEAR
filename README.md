@@ -35,7 +35,7 @@ In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs
 You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
 Here, we take "deng.rds" dataset for example.
 ```
-wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad 
+wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad
 ```
 
 (2) generate preprocessed h5ad file.
