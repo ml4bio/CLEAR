@@ -7,15 +7,17 @@ import os
 parser = argparse.ArgumentParser(description='PyTorch scRNA-seq CLR Training')
 
 # input & ouput
-parser.add_argument('--input_h5ad_path', type=str, default= "",
-                    help='path to counts')
-parser.add_argument('--count_csv_path', type=str, default= None,
-                    help='path to counts')
-parser.add_argument('--label_csv_path', type=str, default= None,
-                    help='path to labels')
-parser.add_argument('--save_h5ad_dir', type=str, default= "./",
+parser.add_argument('--input_h5ad_path', type=str, default="",
+                    help='path to input h5ad files')
+parser.add_argument('--input_10X_path', type=str, default="",
+                    help='path to input 10X')
+parser.add_argument('--count_csv_path', type=str, default=None,
+                    help='path to counts csv')
+parser.add_argument('--label_csv_path', type=str, default=None,
+                    help='path to labels csv')
+parser.add_argument('--save_h5ad_dir', type=str, default="./",
                     help='dir to savings')
-parser.add_argument('--label_colname', type=str, default="x",
+parser.add_argument('--label_colname', type=str, default=None,
                     help='column name of labels in label.csv')
 
 # preprocessing
@@ -41,19 +43,27 @@ def dropout_events(adata, drop_prob=0.0):
 
 
 def preprocess_csv_to_h5ad(
-        input_h5ad_path=None, count_csv_path=None, label_csv_path=None, save_h5ad_dir="./", label_colname="x",
+        input_h5ad_path=None, input_10X_path=None, count_csv_path=None, label_csv_path=None, save_h5ad_dir="./",
+        rename_label_colname=None,
         select_highly_variable_gene=False, do_CPM=True, do_log=True,
         drop_prob=0.0
 ):
-    # 1. read data from h5ad or csv files.
-    if input_h5ad_path != None and count_csv_path == None:
+    # 1. read data from h5ad, 10X or csv files.
+    if input_h5ad_path != None and input_10X_path == None and count_csv_path == None:
         adata = sc.read_h5ad(input_h5ad_path)
         print("Read data from h5ad file: {}".format(input_h5ad_path))
 
         _, h5ad_file_name = os.path.split(input_h5ad_path)
         save_file_name = h5ad_file_name.replace(".h5ad", "_preprocessed.h5ad")
 
-    elif count_csv_path != None and input_h5ad_path == None:
+    elif input_10X_path != None and input_h5ad_path == None and count_csv_path == None:
+        adata = sc.read_10x_mtx(input_10X_path)
+        print("Read data from 10X file: {}".format(input_10X_path))
+
+        _, input_10X_file_name = os.path.split(input_10X_path)
+        save_file_name = input_10X_file_name + "_preprocessed.h5ad"
+
+    elif count_csv_path != None and input_h5ad_path == None and input_10X_path == None:
         # read the count matrix from the path
         count_frame = pd.read_csv(count_csv_path, index_col=0)
         print("counts shape:{}".format(count_frame.shape))
@@ -64,11 +74,13 @@ def preprocess_csv_to_h5ad(
             if count_frame.shape[0] != label_frame.shape[0]:
                 raise Exception("The shapes of counts and labels do not match!")
 
-            label_frame.rename(columns={label_colname: 'x'}, inplace=True)
-            # label_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
-            # label_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
-            # label_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
-            # label_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+            if rename_label_colname is not None:
+                label_frame.rename(columns={label_colname: 'x'}, inplace=True)
+                # label_frame.rename(columns={'cell_ontology_class': 'x'}, inplace=True)   # organ celltype
+                # label_frame.rename(columns={'CellType': 'x'}, inplace=True)   # dataset6
+                # label_frame.rename(columns={'celltype': 'x'}, inplace=True)   # dataset1
+                # label_frame.rename(columns={'Group': 'x'}, inplace=True)  # batch effect dataset3
+
             label_frame.index = count_frame.index
 
             adata = sc.AnnData(X=count_frame, obs=label_frame)
