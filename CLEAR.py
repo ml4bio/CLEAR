@@ -24,8 +24,7 @@ from sklearn.cluster import KMeans
 import scanpy as sc
 import pandas as pd
 
-import metrics as M
-
+from .metrics import compute_metrics  #metrics as M
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
@@ -263,7 +262,6 @@ def main_worker(args):
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     # 2. Train Encoder
-    # CJY
     # train the model
     for epoch in range(args.start_epoch, args.epochs):
 
@@ -298,7 +296,7 @@ def main_worker(args):
                     for random_seed in range(1):
                         pd_labels = KMeans(n_clusters=num_cluster, random_state=args.seed).fit(embeddings).labels_
                         # compute metrics
-                        eval_supervised_metrics = M.compute_metrics(gt_labels, pd_labels)
+                        eval_supervised_metrics = compute_metrics(gt_labels, pd_labels)
                         if eval_supervised_metrics["ARI"] > best_ari:
                             best_ari = eval_supervised_metrics["ARI"]
                             best_eval_supervised_metrics = eval_supervised_metrics

@@ -1,15 +1,12 @@
 import os
 import sys
-import scvi
-import anndata
 import scanpy as sc
-import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_rand_score as ARI
-from sklearn.metrics import normalized_mutual_info_score as NMI
 
 import metrics as M
+
+
 #from .metrics import compute_metrics
 
 

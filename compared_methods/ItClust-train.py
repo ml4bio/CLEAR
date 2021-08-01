@@ -3,13 +3,9 @@ import scanpy.api as sc
 import os
 from numpy.random import seed
 from tensorflow import set_random_seed
-import pandas as pd
 import numpy as np
 import warnings
 import sys
-
-from sklearn.metrics import adjusted_rand_score as ARI
-from sklearn.metrics import normalized_mutual_info_score as NMI
 
 import metrics as M
 

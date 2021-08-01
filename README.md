@@ -15,58 +15,43 @@ git clone https://github.com/ml4bio/CLEAR.git
 cd ~/CLEAR/
 ```
 
-### 2. (Recommanded) Use virtual environment with Anaconda
+### 2. Use virtual environment with Anaconda
 The main environment for CLEAR can be installed with this command:
 ```
-conda env create -f CLEAR_environment.yml
-
+conda env create -f environment.yml
 ```
-To process rds data, we should also create a R environment:
-```
-conda env create -f Rdata_environment.yml
-```
-
-
 
 ## Quick Running
 
 ### 1. Prepare Dataset
 
+First, original input datasets should be preprocessed  before feeding into CLEAR. 
+The datasets used in our paper include two file formats: h5ad and rds.
+In the example, we will concentrate on h5ad files and take "tabula-muris-senis-facs-processed-official-annotations-Bladder" for instance.
 There are two kinds of input data format: rds and h5ad. The preprocessing step will , so we should transform them into csv files respectively. 
 In the following examples, I will use baron-mouse.rds and abula-muris-senis-facs-processed-official-annotations-Diaphragm.h5ad as references. 
-You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
-Here, we take "deng.rds" dataset for example.
 
 (1) download dataset.
+You can either download all of them with the script "download-data.sh" in the "data" folder or use the command in it to download specific dataset.
+Here, we take "deng.rds" dataset for example.
 ```
-wget https://bioinformatics.cse.unr.edu/software/scDHA/resource/Reproducibility/Data/deng.rds -O data/original/rds/deng.rds
-wget https://ndownloader.figshare.com/files/23872487 -O data/original/h5ad/tmsfpoa-Diaphragm.h5ad
 wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfpoa-Bladder.h5ad 
 ```
 
-(2) convert format, from rds files to csv files.
-We can use the offered script "rds_to_csv.R" in the "preprocess" folder to accomplish this transfomation. The command line is as follows: 
-
-Then you can find the baron-mouse_counts.csv and baron-mouse_labels.csv inside the data/original/csv folder.
-As for input h5ad files, you can use preprocess/h5ad_to_csv.py to convert them into csv format.
-
-
-(3) preprocess csv files and generate input h5ad file.
-
+(2) generate preprocessed h5ad file.
 ```
-python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Diaphragm.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log --drop_prob=0
 python preprocess/generate_preprocessed_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --log --drop_prob=0
 ```
+As for rds files, you can transform them into csv files by the script "rds_to_csv.py" in the "preprocess" folder and then preprocessed them with the same above script.
+The required R environment of this R script need to be set up by yourselves, of which the core package is "SingleCellExperiment"
 
 ### 2. Apply CLEAR
 
 we can apply CLEAR with the following command:
 ```
-python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Diaphragm_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
-python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
-
+python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --obs_label_colname="cell_ontology_class" --epochs 100 --lr 0.01 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
-Note: output files are saved in ./result/CLEAR, including embeddings, ground truth labels, cluster results and some log files
+Note: output files are saved in ./result/CLEAR, including embeddings (feature.csv), ground truth labels (gt_label.csv if applicable), cluster results (pd_label.csv if applicable) and some log files (log)
 
 
 ## Citation
