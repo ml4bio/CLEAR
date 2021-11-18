@@ -89,7 +89,7 @@ def theta_ml(y,mu):
     
     return t0
 
-def SCTransform(adata,min_cells=5,gmean_eps=1,n_genes=2000,n_cells=None,bin_size=500,bw_adjust=3,inplace=True):
+def SCTransform(adata,min_cells=0,gmean_eps=1,n_genes=2000,n_cells=None,bin_size=500,bw_adjust=3,inplace=True):
     """
     This is a port of SCTransform from the Satija lab. See the R package for original documentation.
     
@@ -225,8 +225,10 @@ def SCTransform(adata,min_cells=5,gmean_eps=1,n_genes=2000,n_cells=None,bin_size
     vard = mud+mud**2 / full_model_pars['theta'].values.flatten()[y]
 
     mud_X.data[:] = mud
-    mud_X.data[mud.data<0] = 0
+    mud_X.data[mud_X.data<0] = 0
     mud_X.eliminate_zeros()
+
+    #import pdb; pdb.set_trace()
 
     #X.data[:] = (d - mud) / vard**0.5
     #X.data[X.data<0]=0

@@ -38,7 +38,8 @@ parser.add_argument('--input_h5ad_path', type=str, default= "",
 
 parser.add_argument('--obs_label_colname', type=str, default= None,
                     help='column name of the label in obs')
-
+parser.add_argument('--input_sct_path', type=str, default= "",
+                    help='path to input sctransformed h5ad file')
 # 2.hyper-parameters
 parser.add_argument('-j', '--workers', default=1, type=int, metavar='N',
                     help='number of data loading workers (default: 32)')
@@ -149,6 +150,7 @@ def main_worker(args):
     # Load h5ad data
     input_h5ad_path = args.input_h5ad_path
     processed_adata = sc.read_h5ad(input_h5ad_path)
+    adata_sct = sc.read(args.input_sct_path)
     obs_label_colname = args.obs_label_colname
 
     # find dataset name
@@ -176,8 +178,12 @@ def main_worker(args):
         
         # (Add) gaussian noise
         'noise_percentage': 0.8,
-        'sigma': 0.2,
-        'apply_noise_prob': args.aug_prob,
+        'sigma': 0.5,
+        'apply_noise_prob': 0,
+
+        # swap with the NB regressed mu
+        'nb_percentage': 0.8,
+        'apply_nb_prob': args.aug_prob,
 
         # inner swap
         'swap_percentage': 0.1,
@@ -194,12 +200,14 @@ def main_worker(args):
 
     train_dataset = pcl.loader.scRNAMatrixInstance(
         adata=processed_adata,
+        adata_sct=adata_sct,
         obs_label_colname=obs_label_colname,
         transform=True,
         args_transformation=args_transformation
         )
     eval_dataset = pcl.loader.scRNAMatrixInstance(
         adata=processed_adata,
+        adata_sct = adata_sct,
         obs_label_colname=obs_label_colname,
         transform=False
         )
