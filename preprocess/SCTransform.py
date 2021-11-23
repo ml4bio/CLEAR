@@ -1,6 +1,6 @@
 import statsmodels.nonparametric.kernel_regression
 from KDEpy import FFTKDE
-from multiprocessing import Pool, Manager
+from multiprocessing import Pool, Manager, get_context
 from scipy import stats
 import numpy as np
 import os
@@ -168,12 +168,12 @@ def SCTransform(adata,min_cells=0,gmean_eps=1,n_genes=2000,n_cells=None,bin_size
         mm = np.vstack((np.ones(data_step1.shape[0]),data_step1['log_umi'].values.flatten())).T
 
         pc_chunksize = umi_bin.shape[1] // os.cpu_count() + 1
-        pool = Pool(os.cpu_count(), _parallel_init, [genes_bin_regress, umi_bin, gn, mm, ps])
-        try:
-            pool.map(_parallel_wrapper, range(umi_bin.shape[1]), chunksize=pc_chunksize)
-        finally:
-            pool.close()
-            pool.join()
+        with get_context("spawn").Pool(os.cpu_count(), _parallel_init, [genes_bin_regress, umi_bin, gn, mm, ps]) as pool:
+            try:
+                pool.map(_parallel_wrapper, range(umi_bin.shape[1]), chunksize=pc_chunksize)
+            finally:
+                pool.close()
+                pool.join()
 
     ps = ps._getvalue()    
 
