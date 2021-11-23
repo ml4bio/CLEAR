@@ -173,12 +173,15 @@ def preprocess_csv_to_h5ad(
 
         if preprocessed_flag == True:
             save_file_name = save_file_name.replace(".h5ad", "_preprocessed.h5ad")
-            sct_file_name = save_file_name.replace("_preprocessed.h5ad","_sct.h5ad")
         save_path = os.path.join(save_h5ad_dir, save_file_name)
-        sct_save_path = os.path.join(save_h5ad_dir, sct_file_name)
         adata.write(save_path)
-        adata_sct.write(sct_save_path)
         print("Successfully generate preprocessed file: {}".format(save_file_name))
+
+        if do_scTransform == True:
+            sct_file_name = save_file_name.replace("_preprocessed.h5ad", "_sct.h5ad")
+            sct_save_path = os.path.join(save_h5ad_dir, sct_file_name)
+            adata_sct.write(sct_save_path)
+            print("Successfully generate scTransform preprocessed file: {}".format(sct_file_name))
 
     return adata
 

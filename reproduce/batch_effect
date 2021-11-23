@@ -1,0 +1,16 @@
+## dataset 1
+(1)convert txt to csv
+python preprocess/txt_to_csv.py "/home/yanhan/cjy/Single-Cell-Dataset/batch-effect-removal/batch_effect/dataset1/dataset1_sm_uc3.txt" "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1" 1
+python preprocess/txt_to_csv.py "/home/yanhan/cjy/Single-Cell-Dataset/batch-effect-removal/batch_effect/dataset1/sample_sm_uc3.txt" "/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1" 0
+(2)preprocess to h5ad
+c_path=/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1/dataset1_sm_uc3.csv
+l_path=/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/ocsv/dataset1/sample_sm_uc3.csv
+s_path=./data/preprocessed/h5ad/
+python preprocess/generate_h5ad.py --count_csv_path=$c_path --label_csv_path=$l_path --save_h5ad_dir=$s_path --filter --norm --scale #--select_hvg --log 
+(3)train
+#h_path=/home/yanhan/cjy/Single-Cell-Dataset/Scarlet/data/h5ad/dataset1.h5ad  
+h_path=./data/preprocessed/h5ad/dataset1_sm_uc3_preprocessed.h5ad
+python CLEAR.py --input_h5ad_path=$h_path --epochs 500 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0 --eval_freq 1 --obs_label_colname celltype
+
+
+python postprocess/plot_umap.py
