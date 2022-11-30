@@ -76,12 +76,12 @@ wget https://ndownloader.figshare.com/files/23872610 -O data/original/h5ad/tmsfp
 
 ### 2. Generate Preprocessed H5AD File.
 ```bash
-python preprocess/generate_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --filter --norm --log --scale --select_hvg
+python preprocess/generate_h5ad.py --input_h5ad_path="./data/original/h5ad/tmsfpoa-Bladder.h5ad" --save_h5ad_dir="./data/preprocessed/h5ad/" --filter --norm --log --scale --select_hvg --scTransform
 ```
 
 ### 3. Apply CLEAR
 ```bash
-python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
+python CLEAR.py --input_h5ad_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_preprocessed.h5ad" --input_sct_path="./data/preprocessed/h5ad/tmsfpoa-Bladder_sct.h5ad" --epochs 100 --lr 1 --batch_size 512 --pcl_r 1024 --cos --gpu 0
 ```
 If you want to compute metric automatically with existing ground truth label, you can set `--obs_label_colname` to specify the column name of label.
 
