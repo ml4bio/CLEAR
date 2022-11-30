@@ -50,7 +50,6 @@ class ImageFolderInstance(datasets.ImageFolder):
 class scRNAMatrixInstance(Dataset):
     def __init__(self,
                  adata: AnnData = None,
-                 adata_sct: AnnData = None,
                  obs_label_colname: str = "x",
                  transform: bool = False,
                  args_transformation: dict = {}
@@ -83,16 +82,11 @@ class scRNAMatrixInstance(Dataset):
         self.args_transformation = args_transformation
         
         self.dataset_for_transform = deepcopy(self.data)
-        #import pdb; pdb.set_trace()
-        if isinstance(adata_sct.X, np.ndarray):
-            adata_sct = adata_sct.X
-        else:
-            adata_sct = adata_sct.X.toarray()
-        self.sct_dataset_for_transform  = deepcopy(adata_sct)
+
         
-    def RandomTransform(self, sample, index):
+    def RandomTransform(self, sample):
         #tr_sample = deepcopy(sample)
-        tr = transformation(self.dataset_for_transform,self.sct_dataset_for_transform[index], sample)
+        tr = transformation(self.dataset_for_transform, sample)
         
         # the crop operation
 
@@ -101,8 +95,7 @@ class scRNAMatrixInstance(Dataset):
 
         # (Add) Gaussian noise
         tr.random_gaussian_noise(self.args_transformation['noise_percentage'], self.args_transformation['sigma'], self.args_transformation['apply_noise_prob'])
-        # swap with NB regressed mu
-        tr.random_nb_swap(self.args_transformation['nb_percentage'], self.args_transformation['apply_nb_prob'])
+
         # inner swap
         tr.random_swap(self.args_transformation['swap_percentage'], self.args_transformation['apply_swap_prob'])
         
@@ -126,8 +119,8 @@ class scRNAMatrixInstance(Dataset):
             label = -1
 
         if self.transform:
-            sample_1 = self.RandomTransform(sample, index)
-            sample_2 = self.RandomTransform(sample, index)
+            sample_1 = self.RandomTransform(sample)
+            sample_2 = self.RandomTransform(sample)
             sample = [sample_1, sample_2]
         
         return sample, index, label
@@ -140,10 +133,8 @@ class transformation():
     
     def __init__(self, 
                  dataset,
-                 sct_profile,
                  cell_profile):
         self.dataset = dataset
-        self.sct_profile = sct_profile
         self.cell_profile = deepcopy(cell_profile)
         self.gene_num = len(self.cell_profile)
         self.cell_num = len(self.dataset)
@@ -191,18 +182,11 @@ class transformation():
             mask = self.build_mask(noise_percentage)
             
             # create the noise
-            noise = np.random.normal(0, sigma, int(self.gene_num*noise_percentage))
+            noise = np.random.normal(0, 0.5, int(self.gene_num*noise_percentage))
             
             # do the mutation (maybe not add, simply change the value?)
             self.cell_profile[mask] += noise
-    
-    def random_nb_swap(self,
-                       nb_swap_percentage: float=0.8,
-                       apply_nb_prob: float=0.5):
-            s = np.random.uniform(0,1)
-            if s<apply_nb_prob:
-                mask = self.build_mask(nb_swap_percentage)
-                self.sct_profile[mask], self.cell_profile[mask]  = self.cell_profile[mask], self.sct_profile[mask]
+
 
     def random_swap(self,
                     swap_percentage: float=0.1,
